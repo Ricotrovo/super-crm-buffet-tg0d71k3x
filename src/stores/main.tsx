@@ -20,8 +20,10 @@ import {
 } from './mockData'
 
 interface AppState {
-  currentUser: User
-  setCurrentUser: (user: User) => void
+  currentUser: User | null
+  isAuthenticated: boolean
+  login: (email: string, pass: string) => void
+  logout: () => void
   leads: Lead[]
   setLeads: React.Dispatch<React.SetStateAction<Lead[]>>
   events: Event[]
@@ -41,13 +43,33 @@ interface AppState {
 const AppContext = createContext<AppState | undefined>(undefined)
 
 const MOCK_USERS: User[] = [
-  { id: 'u1', name: 'Admin Silva', role: 'Admin' },
-  { id: 'u2', name: 'Gerente João', role: 'Gerente' },
-  { id: 'u3', name: 'Free Lucas', role: 'Freelancer' },
+  {
+    id: 'u1',
+    name: 'Admin Silva',
+    role: 'Admin',
+    email: 'admin@tribo.com',
+    password: 'password123',
+  },
+  {
+    id: 'u2',
+    name: 'Gerente João',
+    role: 'Gerente',
+    email: 'gerente@tribo.com',
+    password: 'password123',
+  },
+  {
+    id: 'u3',
+    name: 'Free Lucas',
+    role: 'Freelancer',
+    email: 'free@tribo.com',
+    password: 'password123',
+  },
 ]
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User>(MOCK_USERS[0])
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
   const [leads, setLeads] = useState<Lead[]>(mockLeads)
   const [events, setEvents] = useState<Event[]>(mockEvents)
   const [contracts, setContracts] = useState<Contract[]>(mockContracts)
@@ -58,7 +80,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const [nextContractNumber, setNextContractNumber] = useState(8001)
 
+  const login = (email: string, pass: string) => {
+    const user = MOCK_USERS.find((u) => u.email === email)
+    if (!user) throw new Error('Email não registrado')
+    if (user.password !== pass) throw new Error('Credenciais inválidas')
+
+    setCurrentUser(user)
+    setIsAuthenticated(true)
+  }
+
+  const logout = () => {
+    setIsAuthenticated(false)
+    setCurrentUser(null)
+  }
+
   const addLog = (action: string, details: string) => {
+    if (!currentUser) return
     const newLog: AuditLog = {
       id: Math.random().toString(),
       userId: currentUser.id,
@@ -70,11 +107,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setLogs((prev) => [newLog, ...prev])
   }
 
-  // Intercept contract creation to increment number
   const handleSetContracts: React.Dispatch<React.SetStateAction<Contract[]>> = (val) => {
     setContracts(val)
     if (typeof val === 'function') {
-      // not perfectly tracking sequence if function, but ok for mock
       setNextContractNumber((prev) => prev + 1)
     } else if (val.length > contracts.length) {
       setNextContractNumber((prev) => prev + 1)
@@ -85,7 +120,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider
       value={{
         currentUser,
-        setCurrentUser,
+        isAuthenticated,
+        login,
+        logout,
         leads,
         setLeads,
         events,

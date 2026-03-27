@@ -5,12 +5,25 @@ import { AppHeader } from './AppHeader'
 import { useAppStore } from '@/stores/main'
 
 export default function Layout() {
-  const { currentUser } = useAppStore()
+  const { isAuthenticated, currentUser } = useAppStore()
   const location = useLocation()
 
-  // Basic role protection
+  if (!isAuthenticated || !currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
   if (currentUser.role === 'Freelancer' && location.pathname !== '/equipe') {
     return <Navigate to="/equipe" replace />
+  }
+
+  const managerAllowed = ['/', '/agenda', '/contratos', '/financeiro']
+  if (
+    currentUser.role === 'Gerente' &&
+    !managerAllowed.some(
+      (path) => location.pathname === path || location.pathname.startsWith(`${path}/`),
+    )
+  ) {
+    return <Navigate to="/" replace />
   }
 
   return (

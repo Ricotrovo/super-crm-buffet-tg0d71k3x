@@ -1,4 +1,4 @@
-import { Bell, Search, UserCircle } from 'lucide-react'
+import { Bell, Search, UserCircle, LogOut } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import {
@@ -19,14 +19,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAppStore, MOCK_USERS } from '@/stores/main'
-import { Badge } from '@/components/ui/badge'
+import { useAppStore } from '@/stores/main'
 
 export function AppHeader() {
   const location = useLocation()
-  const { currentUser, setCurrentUser } = useAppStore()
+  const { currentUser, logout } = useAppStore()
 
   const pathnames = location.pathname.split('/').filter((x) => x)
+
+  if (!currentUser) return null
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 shadow-sm shrink-0">
@@ -35,7 +36,7 @@ export function AppHeader() {
         <Breadcrumb className="hidden md:flex">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             {pathnames.map((name, index) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`
@@ -71,7 +72,7 @@ export function AppHeader() {
 
         <Button variant="ghost" size="icon" className="relative text-muted-foreground">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
         </Button>
 
         <DropdownMenu>
@@ -82,30 +83,21 @@ export function AppHeader() {
             >
               <UserCircle className="h-6 w-6 text-primary" />
               <div className="flex flex-col items-start text-xs hidden sm:flex">
-                <span className="font-medium">{currentUser.name}</span>
+                <span className="font-medium text-foreground">{currentUser.name}</span>
                 <span className="text-muted-foreground">{currentUser.role}</span>
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Alternar Usuário (Mock)</DropdownMenuLabel>
+            <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {MOCK_USERS.map((user) => (
-              <DropdownMenuItem
-                key={user.id}
-                onClick={() => setCurrentUser(user)}
-                className="flex items-center justify-between"
-              >
-                {user.name}
-                {currentUser.id === user.id && (
-                  <Badge variant="secondary" className="text-[10px]">
-                    Atual
-                  </Badge>
-                )}
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Sair</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={logout}
+              className="text-destructive cursor-pointer focus:bg-destructive/10"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

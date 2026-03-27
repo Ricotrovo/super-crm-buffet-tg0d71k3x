@@ -8,6 +8,7 @@ import {
   Package,
   UsersRound,
   ShieldAlert,
+  LogOut,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -16,31 +17,30 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarFooter,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { useAppStore } from '@/stores/main'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export function AppSidebar() {
   const location = useLocation()
-  const { currentUser } = useAppStore()
+  const { currentUser, logout } = useAppStore()
+
+  if (!currentUser) return null
 
   const navItems = [
     { title: 'Dashboard', icon: LayoutDashboard, url: '/', roles: ['Admin', 'Gerente'] },
-    { title: 'Leads', icon: Users, url: '/leads', roles: ['Admin', 'Gerente'] },
     { title: 'Agenda', icon: CalendarDays, url: '/agenda', roles: ['Admin', 'Gerente'] },
     { title: 'Contratos', icon: FileText, url: '/contratos', roles: ['Admin', 'Gerente'] },
+    { title: 'Leads', icon: Users, url: '/leads', roles: ['Admin'] },
+    { title: 'Estoque', icon: Package, url: '/estoque', roles: ['Admin'] },
+    { title: 'Freelancers', icon: UsersRound, url: '/equipe', roles: ['Admin', 'Freelancer'] },
     { title: 'Financeiro', icon: DollarSign, url: '/financeiro', roles: ['Admin', 'Gerente'] },
-    { title: 'Estoque', icon: Package, url: '/estoque', roles: ['Admin', 'Gerente'] },
-    {
-      title: 'Equipe',
-      icon: UsersRound,
-      url: '/equipe',
-      roles: ['Admin', 'Gerente', 'Freelancer'],
-    },
-    { title: 'Logs do Sistema', icon: ShieldAlert, url: '/logs', roles: ['Admin'] },
+    { title: 'Relatórios', icon: ShieldAlert, url: '/relatorios', roles: ['Admin'] },
   ]
 
   const filteredNav = navItems.filter((item) => item.roles.includes(currentUser.role))
@@ -84,6 +84,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-4 border-t border-sidebar-border/50">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+          onClick={logout}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sair do Sistema
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   )
 }
