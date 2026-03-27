@@ -19,7 +19,7 @@ export default function Index() {
     .filter((e) => new Date(e.date) >= new Date() && e.status === 'Confirmado')
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-  const pendingLeads = leads.filter((l) => l.stage === 'Novo' || l.stage === 'Contatado').length
+  const pendingLeads = leads.filter((l) => l.stage === 'Novo' || l.stage === 'Qualificado').length
 
   const delayedPayments = financials.filter(
     (f) =>
@@ -29,10 +29,10 @@ export default function Index() {
 
   const funnelData = [
     { stage: 'Novo', count: leads.filter((l) => l.stage === 'Novo').length },
-    { stage: 'Contato', count: leads.filter((l) => l.stage === 'Contatado').length },
-    { stage: 'Visita', count: leads.filter((l) => l.stage === 'Visita').length },
-    { stage: 'Proposta', count: leads.filter((l) => l.stage === 'Proposta').length },
-    { stage: 'Ganho', count: leads.filter((l) => l.stage === 'Ganho').length },
+    { stage: 'Qualificado', count: leads.filter((l) => l.stage === 'Qualificado').length },
+    { stage: 'Agendado', count: leads.filter((l) => l.stage === 'Agendado').length },
+    { stage: 'Contrato', count: leads.filter((l) => l.stage === 'Contrato').length },
+    { stage: 'Perdido', count: leads.filter((l) => l.stage === 'Perdido').length },
   ]
 
   return (
@@ -88,7 +88,7 @@ export default function Index() {
             title="Pagamentos Atrasados"
             value={delayedPayments}
             icon={AlertCircle}
-            color="text-accent"
+            color="text-destructive"
           />
         )}
       </div>
@@ -139,7 +139,7 @@ export default function Index() {
                       {event.date} às {event.time}
                     </p>
                   </div>
-                  <Badge variant={event.hall === 'Salão A' ? 'default' : 'secondary'}>
+                  <Badge variant={event.hall === 'Salão Premium' ? 'default' : 'secondary'}>
                     {event.hall}
                   </Badge>
                 </div>

@@ -9,7 +9,7 @@ export interface User {
   avatar?: string
 }
 
-export type LeadStage = 'Novo' | 'Contatado' | 'Visita' | 'Proposta' | 'Ganho'
+export type LeadStage = 'Novo' | 'Qualificado' | 'Agendado' | 'Contrato' | 'Perdido'
 
 export interface Lead {
   id: string
@@ -19,7 +19,10 @@ export interface Lead {
   stage: LeadStage
   daysInStage: number
   createdAt: string
+  aiSummary?: string
 }
+
+export type Hall = 'Salão Premium' | 'Salão Kids&Teens'
 
 export interface Event {
   id: string
@@ -27,7 +30,7 @@ export interface Event {
   clientName: string
   date: string
   time: string
-  hall: 'Salão A' | 'Salão B'
+  hall: Hall
   status: 'Rascunho' | 'Confirmado' | 'Concluído' | 'Cancelado'
   guests: number
 }
@@ -41,6 +44,10 @@ export interface Contract {
   total: number
   status: 'Ativo' | 'Finalizado'
   createdAt: string
+  basePrice: number
+  extraGuests: number
+  extraRate: number
+  optionals: number
 }
 
 export interface FinancialInstallment {
@@ -54,10 +61,26 @@ export interface FinancialInstallment {
   status: 'Pendente' | 'Pago' | 'Atrasado'
 }
 
+export interface Expense {
+  id: string
+  description: string
+  value: number
+  date: string
+  category: 'Freelancer' | 'Insumos' | 'Custos Fixos'
+  status: 'Pendente' | 'Pago'
+}
+
+export interface Recipe {
+  id: string
+  snackName: string
+  ingredients: { inventoryId: string; quantity: number }[]
+}
+
 export interface InventoryItem {
   id: string
   name: string
-  category: string
+  category: 'Insumo' | 'Salgado' | 'Bebida' | 'Descartável'
+  location: 'Estoque Geral' | 'Câmara Fria' | 'Freezer' | 'Evento'
   currentStock: number
   minStock: number
   unit: string
@@ -66,8 +89,17 @@ export interface InventoryItem {
 export interface TeamMember {
   id: string
   name: string
-  role: 'Monitor' | 'Garçom' | 'Cozinha'
+  role: 'Monitor' | 'Garçom' | 'Cozinha' | 'Decorador'
   phone: string
+}
+
+export interface Escala {
+  id: string
+  eventId: string
+  memberId: string
+  status: 'Pendente' | 'Confirmado' | 'Recusado'
+  checkIn?: string
+  checkOut?: string
 }
 
 export interface AuditLog {

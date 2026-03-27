@@ -66,6 +66,10 @@ export default function ContractBuilder({
       total,
       status: 'Ativo' as const,
       createdAt: new Date().toISOString(),
+      basePrice,
+      extraGuests,
+      extraRate,
+      optionals,
     }
 
     setContracts((prev) => [...prev, newContract])
@@ -96,13 +100,15 @@ export default function ContractBuilder({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle>Gerador de Contrato</SheetTitle>
-          <SheetDescription>Próximo número: #{nextContractNumber}</SheetDescription>
+          <SheetTitle>Novo Contrato Sequencial</SheetTitle>
+          <SheetDescription>
+            O próximo contrato será gerado com o número #{nextContractNumber}
+          </SheetDescription>
         </SheetHeader>
 
         <Tabs value={step} onValueChange={setStep} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
+            <TabsTrigger value="detalhes">Vínculo</TabsTrigger>
             <TabsTrigger value="calculo">Cálculo</TabsTrigger>
             <TabsTrigger value="pagamento">Pagamento</TabsTrigger>
           </TabsList>
@@ -117,7 +123,7 @@ export default function ContractBuilder({
                 <SelectContent>
                   {events.map((e) => (
                     <SelectItem key={e.id} value={e.id}>
-                      {e.clientName} - {e.date}
+                      {e.clientName} - {new Date(e.date).toLocaleDateString('pt-BR')} ({e.hall})
                     </SelectItem>
                   ))}
                 </SelectContent>

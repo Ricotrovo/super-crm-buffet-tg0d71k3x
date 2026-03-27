@@ -34,13 +34,13 @@ export function AppSidebar() {
 
   const navItems = [
     { title: 'Dashboard', icon: LayoutDashboard, url: '/', roles: ['Admin', 'Gerente'] },
-    { title: 'Agenda', icon: CalendarDays, url: '/agenda', roles: ['Admin', 'Gerente'] },
+    { title: 'Agenda/Salões', icon: CalendarDays, url: '/agenda', roles: ['Admin', 'Gerente'] },
     { title: 'Contratos', icon: FileText, url: '/contratos', roles: ['Admin', 'Gerente'] },
-    { title: 'Leads', icon: Users, url: '/leads', roles: ['Admin'] },
-    { title: 'Estoque', icon: Package, url: '/estoque', roles: ['Admin'] },
+    { title: 'Leads CRM', icon: Users, url: '/leads', roles: ['Admin'] },
+    { title: 'Produção', icon: Package, url: '/estoque', roles: ['Admin'] },
     { title: 'Freelancers', icon: UsersRound, url: '/equipe', roles: ['Admin', 'Freelancer'] },
     { title: 'Financeiro', icon: DollarSign, url: '/financeiro', roles: ['Admin', 'Gerente'] },
-    { title: 'Relatórios', icon: ShieldAlert, url: '/relatorios', roles: ['Admin'] },
+    { title: 'Auditoria', icon: ShieldAlert, url: '/relatorios', roles: ['Admin'] },
   ]
 
   const filteredNav = navItems.filter((item) => item.roles.includes(currentUser.role))
@@ -48,7 +48,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4 flex flex-row items-center gap-2 border-b border-sidebar-border/50">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl shrink-0">
           T
         </div>
         <span className="font-bold text-lg text-sidebar-foreground truncate">Tribo da Folia</span>

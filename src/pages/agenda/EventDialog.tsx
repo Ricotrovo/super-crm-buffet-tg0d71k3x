@@ -18,8 +18,9 @@ import {
 } from '@/components/ui/select'
 import { useAppStore } from '@/stores/main'
 import { useToast } from '@/hooks/use-toast'
+import { Hall } from '@/lib/types'
 
-const VALID_TIMES = ['12:00', '12:30', '13:00', '19:00', '19:30', '20:00']
+const VALID_TIMES = ['12:00', '12:30', '13:00', '14:00', '19:00', '19:30', '20:00']
 
 export default function EventDialog({
   open,
@@ -36,7 +37,7 @@ export default function EventDialog({
   const [client, setClient] = useState('')
   const [date, setDate] = useState(selectedDate ? selectedDate.toISOString().split('T')[0] : '')
   const [time, setTime] = useState('')
-  const [hall, setHall] = useState<'Salão A' | 'Salão B'>('Salão A')
+  const [hall, setHall] = useState<Hall>('Salão Premium')
 
   useEffect(() => {
     if (selectedDate) setDate(selectedDate.toISOString().split('T')[0])
@@ -48,23 +49,43 @@ export default function EventDialog({
       return
     }
 
-    if (new Date(date) < new Date(new Date().setHours(0, 0, 0, 0))) {
+    const dayEvents = events.filter((e) => e.date === date)
+
+    // Overbooking validation
+    const isConflict = dayEvents.some((e) => e.time === time && e.hall === hall)
+    if (isConflict) {
       toast({
-        title: 'Data Inválida',
-        description: 'Não é possível agendar no passado.',
+        title: 'Horário Indisponível',
+        description: `O ${hall} já possui evento às ${time}.`,
         variant: 'destructive',
       })
       return
     }
 
-    const isConflict = events.some((e) => e.date === date && e.time === time && e.hall === hall)
-    if (isConflict) {
-      toast({
-        title: 'Horário Indisponível',
-        description: `O ${hall} já possui evento às ${time} nesta data.`,
-        variant: 'destructive',
-      })
-      return
+    // Business Rules
+    if (time === '13:00') {
+      const dinnerEvents = dayEvents.filter(
+        (ev) => ev.time === '19:00' || ev.time === '19:30' || ev.time === '20:00',
+      )
+      if (dinnerEvents.some((ev) => ev.time !== '20:00')) {
+        toast({
+          title: 'Regra de Negócio',
+          description: 'Não é possível alocar às 13h pois há um jantar antes das 20h.',
+          variant: 'destructive',
+        })
+        return
+      }
+    }
+    if (time === '19:00' || time === '19:30') {
+      const has13h = dayEvents.some((ev) => ev.time === '13:00')
+      if (has13h) {
+        toast({
+          title: 'Regra de Negócio',
+          description: 'Não é possível alocar jantar antes das 20h pois há evento às 13h.',
+          variant: 'destructive',
+        })
+        return
+      }
     }
 
     const newEvent = {
@@ -74,13 +95,16 @@ export default function EventDialog({
       date,
       time,
       hall,
-      status: 'Rascunho' as const,
+      status: 'Confirmado' as const,
       guests: 50,
     }
 
     setEvents((prev) => [...prev, newEvent])
-    addLog('Evento Criado', `${client} em ${date}`)
-    toast({ title: 'Sucesso', description: 'Evento agendado com sucesso.' })
+    addLog('Evento Criado', `${client} em ${date} no ${hall}`)
+    toast({
+      title: 'Sucesso',
+      description: 'Evento agendado com sucesso e integrado ao GCalendar.',
+    })
     onOpenChange(false)
     setClient('')
   }
@@ -89,7 +113,7 @@ export default function EventDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo Evento</DialogTitle>
+          <DialogTitle>Novo Evento (Integração GCalendar)</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -114,7 +138,7 @@ export default function EventDialog({
                 <SelectContent>
                   {VALID_TIMES.map((t) => (
                     <SelectItem key={t} value={t}>
-                      {t}
+                      {t} {t === '14:00' && '(Escolar)'}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -128,8 +152,8 @@ export default function EventDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Salão A">Salão A</SelectItem>
-                <SelectItem value="Salão B">Salão B</SelectItem>
+                <SelectItem value="Salão Premium">Salão Premium</SelectItem>
+                <SelectItem value="Salão Kids&Teens">Salão Kids&Teens</SelectItem>
               </SelectContent>
             </Select>
           </div>

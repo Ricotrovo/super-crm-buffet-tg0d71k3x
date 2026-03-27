@@ -5,8 +5,11 @@ import {
   Event,
   Contract,
   FinancialInstallment,
+  Expense,
   InventoryItem,
+  Recipe,
   TeamMember,
+  Escala,
   AuditLog,
 } from '@/lib/types'
 import {
@@ -14,8 +17,11 @@ import {
   mockEvents,
   mockContracts,
   mockFinancials,
+  mockExpenses,
   mockInventory,
+  mockRecipes,
   mockTeam,
+  mockEscalas,
   mockLogs,
 } from './mockData'
 
@@ -32,9 +38,14 @@ interface AppState {
   setContracts: React.Dispatch<React.SetStateAction<Contract[]>>
   financials: FinancialInstallment[]
   setFinancials: React.Dispatch<React.SetStateAction<FinancialInstallment[]>>
+  expenses: Expense[]
+  setExpenses: React.Dispatch<React.SetStateAction<Expense[]>>
   inventory: InventoryItem[]
   setInventory: React.Dispatch<React.SetStateAction<InventoryItem[]>>
+  recipes: Recipe[]
   team: TeamMember[]
+  escalas: Escala[]
+  setEscalas: React.Dispatch<React.SetStateAction<Escala[]>>
   logs: AuditLog[]
   addLog: (action: string, details: string) => void
   nextContractNumber: number
@@ -58,8 +69,8 @@ const MOCK_USERS: User[] = [
     password: 'password123',
   },
   {
-    id: 'u3',
-    name: 'Free Lucas',
+    id: '1',
+    name: 'Lucas Monitor',
     role: 'Freelancer',
     email: 'free@tribo.com',
     password: 'password123',
@@ -74,8 +85,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [events, setEvents] = useState<Event[]>(mockEvents)
   const [contracts, setContracts] = useState<Contract[]>(mockContracts)
   const [financials, setFinancials] = useState<FinancialInstallment[]>(mockFinancials)
+  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses)
   const [inventory, setInventory] = useState<InventoryItem[]>(mockInventory)
+  const [recipes] = useState<Recipe[]>(mockRecipes)
   const [team] = useState<TeamMember[]>(mockTeam)
+  const [escalas, setEscalas] = useState<Escala[]>(mockEscalas)
   const [logs, setLogs] = useState<AuditLog[]>(mockLogs)
 
   const [nextContractNumber, setNextContractNumber] = useState(8001)
@@ -84,7 +98,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const user = MOCK_USERS.find((u) => u.email === email)
     if (!user) throw new Error('Email não registrado')
     if (user.password !== pass) throw new Error('Credenciais inválidas')
-
     setCurrentUser(user)
     setIsAuthenticated(true)
   }
@@ -109,11 +122,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const handleSetContracts: React.Dispatch<React.SetStateAction<Contract[]>> = (val) => {
     setContracts(val)
-    if (typeof val === 'function') {
-      setNextContractNumber((prev) => prev + 1)
-    } else if (val.length > contracts.length) {
-      setNextContractNumber((prev) => prev + 1)
-    }
+    if (typeof val === 'function') setNextContractNumber((prev) => prev + 1)
+    else if (val.length > contracts.length) setNextContractNumber((prev) => prev + 1)
   }
 
   return (
@@ -131,9 +141,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setContracts: handleSetContracts,
         financials,
         setFinancials,
+        expenses,
+        setExpenses,
         inventory,
         setInventory,
+        recipes,
         team,
+        escalas,
+        setEscalas,
         logs,
         addLog,
         nextContractNumber,

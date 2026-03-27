@@ -6,6 +6,9 @@ import {
   InventoryItem,
   TeamMember,
   AuditLog,
+  Expense,
+  Recipe,
+  Escala,
 } from '@/lib/types'
 
 export const mockLeads: Lead[] = [
@@ -17,13 +20,14 @@ export const mockLeads: Lead[] = [
     stage: 'Novo',
     daysInStage: 1,
     createdAt: '2023-10-01',
+    aiSummary: 'Festa de 5 anos, 50 pessoas, orçamento R$ 4000. Tema: Princesas.',
   },
   {
     id: '2',
     name: 'João Santos',
     source: 'Instagram',
     phone: '(11) 98888-2222',
-    stage: 'Contatado',
+    stage: 'Qualificado',
     daysInStage: 3,
     createdAt: '2023-09-28',
   },
@@ -32,18 +36,9 @@ export const mockLeads: Lead[] = [
     name: 'Ana Oliveira',
     source: 'Facebook',
     phone: '(11) 97777-3333',
-    stage: 'Visita',
+    stage: 'Agendado',
     daysInStage: 5,
     createdAt: '2023-09-25',
-  },
-  {
-    id: '4',
-    name: 'Carlos Costa',
-    source: 'WhatsApp',
-    phone: '(11) 96666-4444',
-    stage: 'Proposta',
-    daysInStage: 2,
-    createdAt: '2023-09-20',
   },
 ]
 
@@ -54,7 +49,7 @@ export const mockEvents: Event[] = [
     clientName: 'Família Souza',
     date: new Date().toISOString().split('T')[0],
     time: '12:00',
-    hall: 'Salão A',
+    hall: 'Salão Premium',
     status: 'Confirmado',
     guests: 50,
   },
@@ -62,9 +57,9 @@ export const mockEvents: Event[] = [
     id: '2',
     clientId: 'c2',
     clientName: 'Pedro Aniversário',
-    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0],
     time: '19:00',
-    hall: 'Salão B',
+    hall: 'Salão Kids&Teens',
     status: 'Confirmado',
     guests: 80,
   },
@@ -80,6 +75,10 @@ export const mockContracts: Contract[] = [
     total: 5500,
     status: 'Ativo',
     createdAt: '2023-09-15',
+    basePrice: 5500,
+    extraGuests: 0,
+    extraRate: 0,
+    optionals: 0,
   },
 ]
 
@@ -101,45 +100,60 @@ export const mockFinancials: FinancialInstallment[] = [
     installmentNumber: 2,
     totalInstallments: 3,
     value: 1833.33,
-    dueDate: new Date().toISOString().split('T')[0],
-    status: 'Pendente',
-  },
-  {
-    id: '3',
-    contractId: '1',
-    contractNumber: 8000,
-    installmentNumber: 3,
-    totalInstallments: 3,
-    value: 1833.34,
-    dueDate: new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() - 86400000).toISOString().split('T')[0],
     status: 'Atrasado',
+  },
+]
+
+export const mockExpenses: Expense[] = [
+  {
+    id: '1',
+    description: 'Compra de Insumos',
+    value: 1200,
+    date: new Date().toISOString().split('T')[0],
+    category: 'Insumos',
+    status: 'Pago',
   },
 ]
 
 export const mockInventory: InventoryItem[] = [
   {
-    id: '1',
-    name: 'Salgados Sortidos',
-    category: 'Alimentação',
+    id: 'i1',
+    name: 'Farinha de Trigo',
+    category: 'Insumo',
+    location: 'Estoque Geral',
+    currentStock: 50,
+    minStock: 20,
+    unit: 'kg',
+  },
+  {
+    id: 'i2',
+    name: 'Frango Desfiado',
+    category: 'Insumo',
+    location: 'Câmara Fria',
+    currentStock: 10,
+    minStock: 15,
+    unit: 'kg',
+  },
+  {
+    id: 's1',
+    name: 'Coxinha',
+    category: 'Salgado',
+    location: 'Freezer',
     currentStock: 500,
     minStock: 1000,
     unit: 'unidades',
   },
+]
+
+export const mockRecipes: Recipe[] = [
   {
-    id: '2',
-    name: 'Refrigerante Cola',
-    category: 'Bebidas',
-    currentStock: 150,
-    minStock: 100,
-    unit: 'garrafas 2L',
-  },
-  {
-    id: '3',
-    name: 'Copos Plásticos',
-    category: 'Descartáveis',
-    currentStock: 5000,
-    minStock: 2000,
-    unit: 'unidades',
+    id: 'r1',
+    snackName: 'Coxinha (100 un)',
+    ingredients: [
+      { inventoryId: 'i1', quantity: 1 },
+      { inventoryId: 'i2', quantity: 2 },
+    ],
   },
 ]
 
@@ -147,6 +161,15 @@ export const mockTeam: TeamMember[] = [
   { id: '1', name: 'Lucas Monitor', role: 'Monitor', phone: '(11) 91111-0000' },
   { id: '2', name: 'Fernanda Garçom', role: 'Garçom', phone: '(11) 92222-0000' },
   { id: '3', name: 'Roberto Cozinha', role: 'Cozinha', phone: '(11) 93333-0000' },
+]
+
+export const mockEscalas: Escala[] = [
+  {
+    id: 'e1',
+    eventId: '1',
+    memberId: '1',
+    status: 'Pendente',
+  },
 ]
 
 export const mockLogs: AuditLog[] = [

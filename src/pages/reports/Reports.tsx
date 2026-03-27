@@ -1,25 +1,60 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText } from 'lucide-react'
+import { ShieldAlert, Activity } from 'lucide-react'
+import { useAppStore } from '@/stores/main'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 export default function Reports() {
+  const { logs } = useAppStore()
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-secondary">Relatórios</h1>
+        <h1 className="text-3xl font-bold text-secondary">Auditoria de Sistema</h1>
       </div>
 
-      <Card className="border-dashed border-2">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle>Módulo de Relatórios</CardTitle>
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2">
+          <Activity className="h-5 w-5 text-primary" />
+          <CardTitle>Log de Atividades</CardTitle>
         </CardHeader>
-        <CardContent className="text-center text-muted-foreground">
-          <p>Esta funcionalidade está em desenvolvimento.</p>
-          <p className="text-sm mt-2">
-            Em breve você poderá exportar relatórios detalhados sobre leads, contratos e finanças.
-          </p>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data/Hora</TableHead>
+                <TableHead>Usuário</TableHead>
+                <TableHead>Ação</TableHead>
+                <TableHead>Detalhes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                    Nenhum log registrado.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString('pt-BR')}
+                    </TableCell>
+                    <TableCell className="font-medium">{log.userName}</TableCell>
+                    <TableCell>{log.action}</TableCell>
+                    <TableCell className="text-muted-foreground">{log.details}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
