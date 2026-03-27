@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 import { CheckCircle2, UserPlus, Phone } from 'lucide-react'
 
 export default function Team() {
@@ -96,7 +97,7 @@ export default function Team() {
         <CardContent>
           <div className="space-y-4">
             {escalas
-              .filter((e) => (isFreelancer ? e.memberId === currentUser.id : true))
+              .filter((e) => (isFreelancer ? e.memberId === currentUser?.id : true))
               .map((escala) => {
                 const event = events.find((ev) => ev.id === escala.eventId)
                 const member = team.find((m) => m.id === escala.memberId)
