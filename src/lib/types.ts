@@ -93,6 +93,39 @@ export interface TeamMember {
   phone: string
 }
 
+export interface Employee {
+  id: string
+  name: string
+  registrationId: string
+  documents: string
+  address: string
+  role: string
+  baseSalary: number
+  accessLevel: Role
+}
+
+export interface Supplier {
+  id: string
+  companyName: string
+  contactInfo: string
+  category: string
+  subCategory: string
+  productsOffered: string
+  priceTable: string
+}
+
+export interface FreelancerRole {
+  role: string
+  payRate: number
+}
+
+export interface Freelancer {
+  id: string
+  name: string
+  contactInfo: string
+  roles: FreelancerRole[]
+}
+
 export interface Escala {
   id: string
   eventId: string

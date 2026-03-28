@@ -9,6 +9,9 @@ import {
   Expense,
   Recipe,
   Escala,
+  Employee,
+  Supplier,
+  Freelancer,
 } from '@/lib/types'
 
 export const mockLeads: Lead[] = [
@@ -169,6 +172,43 @@ export const mockEscalas: Escala[] = [
     eventId: '1',
     memberId: '1',
     status: 'Pendente',
+  },
+]
+
+export const mockEmployees: Employee[] = [
+  {
+    id: '1',
+    name: 'Carlos Gerente',
+    registrationId: 'EMP001',
+    documents: 'CPF: 111.222.333-44',
+    address: 'Rua A, 123, Centro, São Paulo - SP',
+    role: 'Gerente Geral',
+    baseSalary: 5000,
+    accessLevel: 'Gerente',
+  },
+]
+
+export const mockSuppliers: Supplier[] = [
+  {
+    id: '1',
+    companyName: 'Bebidas e Cia',
+    contactInfo: '(11) 9999-8888',
+    category: 'Bebidas',
+    subCategory: 'Refrigerantes',
+    productsOffered: 'Coca-cola, Guaraná, Sucos',
+    priceTable: 'Tabela 2023 anexada',
+  },
+]
+
+export const mockFreelancers: Freelancer[] = [
+  {
+    id: '1',
+    name: 'Lucas Silva',
+    contactInfo: '(11) 97777-6666',
+    roles: [
+      { role: 'Garçom', payRate: 100 },
+      { role: 'Monitor', payRate: 120 },
+    ],
   },
 ]
 

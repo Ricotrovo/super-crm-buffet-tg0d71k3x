@@ -15,6 +15,9 @@ import Financial from './pages/financial/Financial'
 import Inventory from './pages/inventory/Inventory'
 import Team from './pages/team/Team'
 import Reports from './pages/reports/Reports'
+import Employees from './pages/adm/Employees'
+import Suppliers from './pages/adm/Suppliers'
+import Freelancers from './pages/adm/Freelancers'
 
 const App = () => (
   <AppProvider>
@@ -33,6 +36,9 @@ const App = () => (
             <Route path="/estoque" element={<Inventory />} />
             <Route path="/equipe" element={<Team />} />
             <Route path="/relatorios" element={<Reports />} />
+            <Route path="/adm/funcionarios" element={<Employees />} />
+            <Route path="/adm/fornecedores" element={<Suppliers />} />
+            <Route path="/adm/freelancers" element={<Freelancers />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -9,6 +9,8 @@ import {
   UsersRound,
   ShieldAlert,
   LogOut,
+  Settings,
+  ChevronRight,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -21,7 +23,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { useAppStore } from '@/stores/main'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -43,7 +49,15 @@ export function AppSidebar() {
     { title: 'Auditoria', icon: ShieldAlert, url: '/relatorios', roles: ['Admin'] },
   ]
 
+  const admItems = [
+    { title: 'Funcionários', url: '/adm/funcionarios' },
+    { title: 'Fornecedores', url: '/adm/fornecedores' },
+    { title: 'Freelancers', url: '/adm/freelancers' },
+  ]
+
   const filteredNav = navItems.filter((item) => item.roles.includes(currentUser.role))
+  const showAdm = ['Admin'].includes(currentUser.role)
+  const isAdmActive = location.pathname.startsWith('/adm')
 
   return (
     <Sidebar>
@@ -80,6 +94,36 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 )
               })}
+
+              {showAdm && (
+                <Collapsible defaultOpen={isAdmActive} className="group/collapsible">
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip="Administração" isActive={isAdmActive}>
+                        <Settings className="w-4 h-4" />
+                        <span>Administração (ADM)</span>
+                        <ChevronRight className="ml-auto w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {admItems.map((item) => {
+                          const isSubActive = location.pathname === item.url
+                          return (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton asChild isActive={isSubActive}>
+                                <Link to={item.url}>
+                                  <span>{item.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
