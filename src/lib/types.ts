@@ -96,22 +96,38 @@ export interface TeamMember {
 export interface Employee {
   id: string
   name: string
+  cpf?: string
   registrationId: string
   documents: string
   address: string
+  cep?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
   role: string
   baseSalary: number
   accessLevel: Role
 }
 
+export interface SupplierProduct {
+  id: string
+  name: string
+  cost: number
+}
+
 export interface Supplier {
   id: string
   companyName: string
+  cnpjCpf?: string
   contactInfo: string
   category: string
   subCategory: string
   productsOffered: string
   priceTable: string
+  products?: SupplierProduct[]
 }
 
 export interface FreelancerRole {
@@ -122,7 +138,16 @@ export interface FreelancerRole {
 export interface Freelancer {
   id: string
   name: string
+  cpf?: string
   contactInfo: string
+  address?: string
+  cep?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
   roles: FreelancerRole[]
 }
 
