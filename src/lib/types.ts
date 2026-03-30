@@ -50,6 +50,25 @@ export interface Contract {
   extraGuests: number
   extraRate: number
   optionals: number
+  clientNationality?: string
+  clientMaritalStatus?: string
+  clientRg?: string
+  clientCpf?: string
+  clientAddress?: string
+  clientEmail?: string
+  clientPhone?: string
+  birthdayPersonName?: string
+  birthdayPersonAge?: number
+  eventDate?: string
+  eventTimeStart?: string
+  eventTimeEnd?: string
+  eventHall?: string
+  guestCount?: number
+  decorationTheme?: string
+  specialInclusions?: string
+  alcoholicDrinksIncluded?: boolean
+  paymentMethodDescription?: string
+  imageRightsGranted?: boolean
 }
 
 export interface FinancialInstallment {
