@@ -1,160 +1,123 @@
 import { useState } from 'react'
-import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, CalendarDays, Clock, Users, FileText, Utensils, User } from 'lucide-react'
 import { useAppStore } from '@/stores/main'
 import EventDialog from './EventDialog'
-import { cn } from '@/lib/utils'
-
-const TIMES = ['12:00', '12:30', '13:00', '14:00', '19:00', '19:30', '20:00']
-const HALLS = ['Salão Premium', 'Salão Kids&Teens'] as const
 
 export default function Agenda() {
-  const [date, setDate] = useState<Date | undefined>(new Date())
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { events, setEvents, addLog } = useAppStore()
+  const { events } = useAppStore()
 
-  const selectedDateStr = date ? date.toISOString().split('T')[0] : ''
-  const dayEvents = events.filter((e) => e.date === selectedDateStr)
+  // Sort events chronologically by date and time
+  const sortedEvents = [...events].sort((a, b) => {
+    const dateA = new Date(`${a.date}T${a.time}`)
+    const dateB = new Date(`${b.date}T${b.time}`)
+    return dateA.getTime() - dateB.getTime()
+  })
 
-  const handleDrop = (e: React.DragEvent, time: string, hall: string) => {
-    e.preventDefault()
-    const eventId = e.dataTransfer.getData('eventId')
-    if (!eventId) return
-
-    // Business Rule Validation
-    if (time === '13:00') {
-      const dinnerEvents = dayEvents.filter(
-        (ev) =>
-          ev.id !== eventId && (ev.time === '19:00' || ev.time === '19:30' || ev.time === '20:00'),
-      )
-      if (dinnerEvents.some((ev) => ev.time !== '20:00')) {
-        alert('Não é possível alocar às 13:00 pois há evento à noite antes das 20:00.')
-        return
-      }
-    }
-    if (time === '19:00' || time === '19:30') {
-      const has13h = dayEvents.some((ev) => ev.id !== eventId && ev.time === '13:00')
-      if (has13h) {
-        alert('Não é possível alocar jantar antes das 20:00 pois há evento às 13:00.')
-        return
-      }
-    }
-    const isOccupied = dayEvents.some(
-      (ev) => ev.time === time && ev.hall === hall && ev.id !== eventId,
-    )
-    if (isOccupied) {
-      alert('Horário já ocupado neste salão.')
-      return
-    }
-
-    setEvents((prev) =>
-      prev.map((ev) => (ev.id === eventId ? { ...ev, time, hall: hall as any } : ev)),
-    )
-    addLog('Evento Movido', `Evento movido para ${time} no ${hall}`)
+  const formatDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-')
+    return `${day}/${month}/${year}`
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-secondary">Agenda Anti-Overbooking</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => alert('Sincronização Google Calendar Simulada')}>
-            Sync Google Calendar
-          </Button>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Agendar
-          </Button>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-3xl font-bold text-secondary">Agenda de Eventos</h1>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Novo Evento
+        </Button>
       </div>
 
-      <div className="grid lg:grid-cols-4 gap-6">
-        <Card className="lg:col-span-1 h-fit">
-          <CardContent className="p-4 flex justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="rounded-md border shadow-sm w-full"
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Horários - {date?.toLocaleDateString('pt-BR')}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <div className="min-w-[600px] border-t">
-              <div className="grid grid-cols-3 bg-muted text-muted-foreground font-semibold p-3 border-b">
-                <div className="text-center">Horário</div>
-                <div className="text-center text-blue-600">Salão Premium</div>
-                <div className="text-center text-green-600">Salão Kids&Teens</div>
-              </div>
-
-              <div className="divide-y">
-                {TIMES.map((time) => (
-                  <div key={time} className="grid grid-cols-3 min-h-[80px]">
-                    <div className="flex items-center justify-center font-medium bg-muted/20 border-r">
-                      {time}
-                      {time === '14:00' && (
-                        <span className="ml-2 text-xs text-muted-foreground">(Escolar)</span>
-                      )}
+      <div className="space-y-4">
+        {sortedEvents.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+            Nenhum evento agendado.
+          </div>
+        ) : (
+          sortedEvents.map((ev) => (
+            <Card key={ev.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <CardContent className="p-0">
+                <div className="flex flex-col md:flex-row">
+                  {/* Date & Time Sidebar */}
+                  <div className="bg-muted/30 p-6 md:w-64 flex flex-col gap-3 border-b md:border-b-0 md:border-r">
+                    <div className="flex items-center gap-2 font-bold text-lg text-primary">
+                      <CalendarDays className="h-5 w-5" />
+                      {formatDate(ev.date)}
                     </div>
-                    {HALLS.map((hall) => {
-                      const ev = dayEvents.find((e) => e.time === time && e.hall === hall)
-                      return (
-                        <div
-                          key={hall}
-                          className={cn(
-                            'p-2 border-r last:border-r-0 transition-colors',
-                            !ev && 'hover:bg-primary/5',
-                          )}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => handleDrop(e, time, hall)}
-                        >
-                          {ev ? (
-                            <div
-                              draggable
-                              onDragStart={(e) => e.dataTransfer.setData('eventId', ev.id)}
-                              className={cn(
-                                'h-full w-full rounded-md border p-2 cursor-grab active:cursor-grabbing shadow-sm flex flex-col justify-between',
-                                hall === 'Salão Premium'
-                                  ? 'bg-blue-50 border-blue-200'
-                                  : 'bg-green-50 border-green-200',
-                              )}
-                            >
-                              <div className="font-semibold text-sm line-clamp-1">
-                                {ev.clientName}
-                              </div>
-                              <div className="flex justify-between items-center mt-2">
-                                <span className="text-xs text-muted-foreground">
-                                  {ev.guests} conv.
-                                </span>
-                                <Badge variant="outline" className="text-[10px] h-4">
-                                  {ev.status}
-                                </Badge>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground/30 border-2 border-dashed border-transparent hover:border-border rounded-md">
-                              Arraste ou clique
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
+                    <div className="flex items-center gap-2 text-muted-foreground font-medium">
+                      <Clock className="h-4 w-4" />
+                      {ev.time}
+                    </div>
+                    <div className="mt-2">
+                      <Badge
+                        variant="outline"
+                        className={
+                          ev.hall === 'Salão Premium'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-green-50 text-green-700 border-green-200'
+                        }
+                      >
+                        {ev.hall}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Badge variant="secondary" className="text-xs">
+                        {ev.status}
+                      </Badge>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
+                  {/* Event Details Grid */}
+                  <div className="p-6 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Nº de Contrato
+                      </div>
+                      <div className="font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground/70" />
+                        {ev.contractNumber || 'Não informado'}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Nome do Contratante
+                      </div>
+                      <div className="font-semibold flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground/70" />
+                        {ev.clientName}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium text-muted-foreground">Cardápio</div>
+                      <div className="font-semibold flex items-center gap-2">
+                        <Utensils className="h-4 w-4 text-muted-foreground/70" />
+                        {ev.menu || 'Não definido'}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Qtde. Convidados
+                      </div>
+                      <div className="font-semibold flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground/70" />
+                        {ev.guests} convidados
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
-      <EventDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} selectedDate={date} />
+      <EventDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   )
 }

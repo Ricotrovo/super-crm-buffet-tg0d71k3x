@@ -28,6 +28,8 @@ export interface Event {
   id: string
   clientId: string
   clientName: string
+  contractNumber?: string
+  menu?: string
   date: string
   time: string
   hall: Hall
