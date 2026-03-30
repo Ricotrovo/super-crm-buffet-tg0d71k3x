@@ -36,6 +36,7 @@ interface AppState {
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>
   contracts: Contract[]
   setContracts: React.Dispatch<React.SetStateAction<Contract[]>>
+  updateContract: (id: string, data: Partial<Contract>) => void
   financials: FinancialInstallment[]
   setFinancials: React.Dispatch<React.SetStateAction<FinancialInstallment[]>>
   expenses: Expense[]
@@ -126,6 +127,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     else if (val.length > contracts.length) setNextContractNumber((prev) => prev + 1)
   }
 
+  const updateContract = (id: string, data: Partial<Contract>) => {
+    setContracts((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)))
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -139,6 +144,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setEvents,
         contracts,
         setContracts: handleSetContracts,
+        updateContract,
         financials,
         setFinancials,
         expenses,

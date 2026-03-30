@@ -69,6 +69,13 @@ export interface Contract {
   alcoholicDrinksIncluded?: boolean
   paymentMethodDescription?: string
   imageRightsGranted?: boolean
+  signatureStatus?: 'Rascunho' | 'Pendente de Assinatura' | 'Assinado'
+  signedAt?: string
+  signerIp?: string
+  witness1Name?: string
+  witness1Cpf?: string
+  witness2Name?: string
+  witness2Cpf?: string
 }
 
 export interface FinancialInstallment {

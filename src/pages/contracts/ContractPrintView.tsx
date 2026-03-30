@@ -175,34 +175,52 @@ export function ContractPrintView({ contract }: { contract: Contract }) {
           {new Date(contract.createdAt).getFullYear()}
         </p>
         <div className="grid grid-cols-2 gap-8 mb-8">
-          <div className="border-t border-black pt-2">
+          <div className="border-t border-black pt-2 relative">
             <p>
               <strong>TRIBO DA FOLIA FESTAS E EVENTOS EIRELI</strong>
               <br />
               CONTRATADA
             </p>
+            {contract.signatureStatus === 'Assinado' && (
+              <div className="absolute top-8 left-0 right-0 text-center text-xs text-green-700 font-mono opacity-80 border border-green-700 bg-green-50 p-1">
+                ASSINADO DIGITALMENTE
+                <br />
+                {new Date(contract.signedAt || '').toLocaleString('pt-BR')}
+                <br />
+                IP: {contract.signerIp}
+              </div>
+            )}
           </div>
-          <div className="border-t border-black pt-2">
+          <div className="border-t border-black pt-2 relative">
             <p>
               <strong>{contract.clientName.toUpperCase()}</strong>
               <br />
               CONTRATANTE
             </p>
+            {contract.signatureStatus === 'Assinado' && (
+              <div className="absolute top-8 left-0 right-0 text-center text-xs text-green-700 font-mono opacity-80 border border-green-700 bg-green-50 p-1">
+                ASSINADO DIGITALMENTE
+                <br />
+                {new Date(contract.signedAt || '').toLocaleString('pt-BR')}
+                <br />
+                IP: {contract.signerIp}
+              </div>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-8">
-          <div className="border-t border-black pt-2 text-left">
+          <div className="border-t border-black pt-2 text-left relative h-16">
             <p>
-              Testemunha 1:
+              Testemunha 1: {contract.witness1Name}
               <br />
-              CPF:
+              CPF: {contract.witness1Cpf}
             </p>
           </div>
-          <div className="border-t border-black pt-2 text-left">
+          <div className="border-t border-black pt-2 text-left relative h-16">
             <p>
-              Testemunha 2:
+              Testemunha 2: {contract.witness2Name}
               <br />
-              CPF:
+              CPF: {contract.witness2Cpf}
             </p>
           </div>
         </div>

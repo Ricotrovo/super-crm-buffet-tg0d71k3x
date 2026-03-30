@@ -18,6 +18,7 @@ import Reports from './pages/reports/Reports'
 import Employees from './pages/adm/Employees'
 import Suppliers from './pages/adm/Suppliers'
 import Freelancers from './pages/adm/Freelancers'
+import SignaturePage from './pages/contracts/SignaturePage'
 
 const App = () => (
   <AppProvider>
@@ -27,6 +28,7 @@ const App = () => (
         <Sonner />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/assinatura/:contractId" element={<SignaturePage />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/leads" element={<Leads />} />

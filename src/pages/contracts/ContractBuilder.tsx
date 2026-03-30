@@ -116,6 +116,7 @@ export default function ContractBuilder({
       alcoholicDrinksIncluded,
       paymentMethodDescription,
       imageRightsGranted,
+      signatureStatus: 'Rascunho' as const,
     }
 
     setContracts((p) => [...p, newContract])

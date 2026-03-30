@@ -86,6 +86,7 @@ export const mockContracts: Contract[] = [
     extraGuests: 0,
     extraRate: 0,
     optionals: 0,
+    signatureStatus: 'Pendente de Assinatura',
   },
 ]
 
