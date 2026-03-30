@@ -205,6 +205,8 @@ export const mockFreelancers: Freelancer[] = [
     id: '1',
     name: 'Lucas Silva',
     contactInfo: '(11) 97777-6666',
+    guardianName: 'Maria Silva',
+    guardianContact: '(11) 98888-7777',
     roles: [
       { role: 'Garçom', payRate: 100 },
       { role: 'Monitor', payRate: 120 },

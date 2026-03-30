@@ -148,6 +148,8 @@ export interface Freelancer {
   neighborhood?: string
   city?: string
   state?: string
+  guardianName?: string
+  guardianContact?: string
   roles: FreelancerRole[]
 }
 

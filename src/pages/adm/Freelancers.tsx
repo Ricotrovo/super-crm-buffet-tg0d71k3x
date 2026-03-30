@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, Pencil, Trash2, X, MapPin } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, X, MapPin, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -218,6 +218,7 @@ export default function Freelancers() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>CPF / Contato</TableHead>
+              <TableHead>Responsável (Menores)</TableHead>
               <TableHead>Funções e Cachês</TableHead>
               <TableHead className="w-[100px] text-right">Ações</TableHead>
             </TableRow>
@@ -230,6 +231,20 @@ export default function Freelancers() {
                   <div className="flex flex-col text-sm">
                     {freelancer.cpf && <span>{freelancer.cpf}</span>}
                     <span className="text-muted-foreground">{freelancer.contactInfo || '-'}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col text-sm">
+                    {freelancer.guardianName ? (
+                      <>
+                        <span>{freelancer.guardianName}</span>
+                        <span className="text-muted-foreground">
+                          {freelancer.guardianContact || '-'}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -271,7 +286,7 @@ export default function Freelancers() {
             ))}
             {filteredFreelancers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                   Nenhum freelancer encontrado.
                 </TableCell>
               </TableRow>
@@ -316,7 +331,33 @@ export default function Freelancers() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <Users className="w-4 h-4" /> Dados do Responsável (Para Menores)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nome do Responsável</Label>
+                  <Input
+                    value={formData.guardianName || ''}
+                    onChange={(e) => setFormData({ ...formData, guardianName: e.target.value })}
+                    placeholder="Ex: Maria Silva"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Contato do Responsável</Label>
+                  <Input
+                    value={formData.guardianContact || ''}
+                    onChange={(e) =>
+                      setFormData({ ...formData, guardianContact: maskPhone(e.target.value) })
+                    }
+                    placeholder="(11) 90000-0000"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <MapPin className="w-4 h-4" /> Endereço
               </h3>
