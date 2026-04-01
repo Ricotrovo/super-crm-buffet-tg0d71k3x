@@ -47,7 +47,12 @@ export default function Outsourced() {
     status: 'Pendente' as 'Pendente' | 'Pago',
   })
 
-  const [reportMonth, setReportMonth] = useState(new Date().toISOString().substring(0, 7)) // YYYY-MM
+  const today = new Date().toISOString().split('T')[0]
+  const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+    .toISOString()
+    .split('T')[0]
+  const [reportStart, setReportStart] = useState(firstDay)
+  const [reportEnd, setReportEnd] = useState(today)
 
   const handleOpen = (item?: (typeof outsourcedServices)[0]) => {
     if (item) {
@@ -108,7 +113,7 @@ export default function Outsourced() {
   }
 
   const groupedReport = useMemo(() => {
-    const filtered = outsourcedServices.filter((o) => o.date.startsWith(reportMonth))
+    const filtered = outsourcedServices.filter((o) => o.date >= reportStart && o.date <= reportEnd)
     const report: Record<string, { total: number; pendente: number; pago: number }> = {}
 
     filtered.forEach((o) => {
@@ -118,7 +123,7 @@ export default function Outsourced() {
       else report[o.supplier].pendente += o.cost
     })
     return report
-  }, [outsourcedServices, reportMonth])
+  }, [outsourcedServices, reportStart, reportEnd])
 
   return (
     <div className="space-y-6">
@@ -191,16 +196,26 @@ export default function Outsourced() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Relatório de Pagamentos</CardTitle>
+            <CardTitle>Relatório de Pagamentos (Por Período)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <Label>Mês de Referência</Label>
-              <Input
-                type="month"
-                value={reportMonth}
-                onChange={(e) => setReportMonth(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-1">
+                <Label>Data Inicial</Label>
+                <Input
+                  type="date"
+                  value={reportStart}
+                  onChange={(e) => setReportStart(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-1">
+                <Label>Data Final</Label>
+                <Input
+                  type="date"
+                  value={reportEnd}
+                  onChange={(e) => setReportEnd(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="space-y-4 mt-4">
@@ -222,7 +237,7 @@ export default function Outsourced() {
                 </div>
               ))}
               {Object.keys(groupedReport).length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhum registro para este mês.</p>
+                <p className="text-sm text-muted-foreground">Nenhum registro para este período.</p>
               )}
             </div>
           </CardContent>

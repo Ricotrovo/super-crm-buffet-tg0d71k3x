@@ -71,11 +71,13 @@ export const mockEvents: Event[] = [
     clientName: 'Família Souza',
     contractNumber: '8000',
     menu: 'Festa Kids Tradicional',
+    menuId: '1',
     date: new Date().toISOString().split('T')[0],
     time: '12:00',
     hall: 'Salão Premium',
     status: 'Confirmado',
     guests: 50,
+    selectedOptionals: ['Pintura Facial'],
   },
   {
     id: '2',
@@ -83,11 +85,13 @@ export const mockEvents: Event[] = [
     clientName: 'Pedro Aniversário',
     contractNumber: '8001',
     menu: 'Teen Party Snacks',
+    menuId: '2',
     date: new Date().toISOString().split('T')[0],
     time: '19:00',
     hall: 'Salão Kids&Teens',
     status: 'Confirmado',
     guests: 80,
+    selectedOptionals: [],
   },
 ]
 
@@ -195,6 +199,7 @@ export const mockEscalas: Escala[] = [
     id: 'e1',
     eventId: '1',
     memberId: '1',
+    role: 'Monitor',
     status: 'Pendente',
   },
 ]
@@ -256,6 +261,25 @@ export const mockMenuConfigs: MenuConfig[] = [
     price50Guests: 5500,
     extraGuestPre: 90,
     extraGuestDay: 120,
+    baseStaff: [
+      { role: 'Monitor', quantity: 2 },
+      { role: 'Garçom', quantity: 2 },
+      { role: 'Cozinha', quantity: 1 },
+    ],
+    scalingRules: [
+      { guestThreshold: 60, role: 'Garçom', extraQuantity: 1 },
+      { guestThreshold: 80, role: 'Monitor', extraQuantity: 1 },
+    ],
+    optionalItems: [
+      {
+        id: 'opt1',
+        name: 'Pintura Facial',
+        price: 200,
+        triggersExtraStaff: true,
+        staffRole: 'Animador',
+      },
+      { id: 'opt2', name: 'Decoração Premium', price: 1000, triggersExtraStaff: false },
+    ],
   },
   {
     id: '2',
@@ -263,6 +287,21 @@ export const mockMenuConfigs: MenuConfig[] = [
     price50Guests: 6500,
     extraGuestPre: 110,
     extraGuestDay: 150,
+    baseStaff: [
+      { role: 'Monitor', quantity: 1 },
+      { role: 'Garçom', quantity: 3 },
+      { role: 'Cozinha', quantity: 2 },
+    ],
+    scalingRules: [{ guestThreshold: 70, role: 'Garçom', extraQuantity: 1 }],
+    optionalItems: [
+      {
+        id: 'opt3',
+        name: 'DJ Profissional',
+        price: 800,
+        triggersExtraStaff: true,
+        staffRole: 'Animador',
+      },
+    ],
   },
 ]
 

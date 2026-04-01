@@ -49,11 +49,13 @@ export interface Event {
   clientName: string
   contractNumber?: string
   menu?: string
+  menuId?: string
   date: string
   time: string
   hall: Hall
   status: 'Rascunho' | 'Confirmado' | 'Concluído' | 'Cancelado'
   guests: number
+  selectedOptionals?: string[]
 }
 
 export interface Contract {
@@ -204,6 +206,7 @@ export interface Escala {
   id: string
   eventId: string
   memberId: string
+  role: string
   status: 'Pendente' | 'Confirmado' | 'Recusado'
   checkIn?: string
   checkOut?: string
@@ -218,12 +221,34 @@ export interface AuditLog {
   timestamp: string
 }
 
+export interface MenuBaseStaff {
+  role: string
+  quantity: number
+}
+
+export interface MenuScalingRule {
+  guestThreshold: number
+  role: string
+  extraQuantity: number
+}
+
+export interface MenuOptionalItem {
+  id: string
+  name: string
+  price: number
+  triggersExtraStaff: boolean
+  staffRole?: string
+}
+
 export interface MenuConfig {
   id: string
   name: string
   price50Guests: number
   extraGuestPre: number
   extraGuestDay: number
+  baseStaff?: MenuBaseStaff[]
+  scalingRules?: MenuScalingRule[]
+  optionalItems?: MenuOptionalItem[]
 }
 
 export interface Product {
