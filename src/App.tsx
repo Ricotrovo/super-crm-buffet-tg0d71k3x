@@ -20,6 +20,13 @@ import Suppliers from './pages/adm/Suppliers'
 import Freelancers from './pages/adm/Freelancers'
 import SignaturePage from './pages/contracts/SignaturePage'
 
+import Menus from './pages/adm/Menus'
+import Products from './pages/adm/Products'
+import Supplies from './pages/adm/Supplies'
+import Outsourced from './pages/adm/Outsourced'
+import Kitchen from './pages/kitchen/Kitchen'
+import Checklist from './pages/operational/Checklist'
+
 const App = () => (
   <AppProvider>
     <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -41,6 +48,12 @@ const App = () => (
             <Route path="/adm/funcionarios" element={<Employees />} />
             <Route path="/adm/fornecedores" element={<Suppliers />} />
             <Route path="/adm/freelancers" element={<Freelancers />} />
+            <Route path="/adm/cardapios" element={<Menus />} />
+            <Route path="/adm/produtos" element={<Products />} />
+            <Route path="/adm/insumos" element={<Supplies />} />
+            <Route path="/adm/terceirizados" element={<Outsourced />} />
+            <Route path="/cozinha" element={<Kitchen />} />
+            <Route path="/checklist" element={<Checklist />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,4 +1,4 @@
-export type Role = 'Admin' | 'Gerente' | 'Freelancer'
+export type Role = 'Admin' | 'Gerente' | 'Freelancer' | 'Cozinha' | 'Operacional'
 
 export interface User {
   id: string
@@ -216,4 +216,57 @@ export interface AuditLog {
   action: string
   details: string
   timestamp: string
+}
+
+export interface MenuConfig {
+  id: string
+  name: string
+  price50Guests: number
+  extraGuestPre: number
+  extraGuestDay: number
+}
+
+export interface Product {
+  id: string
+  name: string
+  supplier: string
+  category: string
+  currentStock: number
+}
+
+export interface EventSupply {
+  id: string
+  eventId: string
+  productId: string
+  quantity: number
+}
+
+export interface OutsourcedService {
+  id: string
+  eventId: string
+  type: 'Bolo' | 'Doces' | 'Salgados' | 'Pão' | 'Tema' | 'Outros' | string
+  description: string
+  cost: number
+  supplier: string
+  date: string
+  status: 'Pendente' | 'Pago'
+}
+
+export interface ChecklistItem {
+  id: string
+  task: string
+  isChecked: boolean
+}
+
+export interface EventChecklist {
+  eventId: string
+  items: ChecklistItem[]
+}
+
+export interface KitchenTask {
+  id: string
+  eventId: string
+  itemName: string
+  quantity: number
+  status: 'Pendente' | 'Concluído'
 }

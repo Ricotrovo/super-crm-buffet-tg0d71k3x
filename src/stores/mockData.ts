@@ -12,6 +12,12 @@ import {
   Employee,
   Supplier,
   Freelancer,
+  MenuConfig,
+  Product,
+  EventSupply,
+  OutsourcedService,
+  KitchenTask,
+  EventChecklist,
 } from '@/lib/types'
 
 export const mockLeads: Lead[] = [
@@ -240,5 +246,91 @@ export const mockLogs: AuditLog[] = [
     action: 'Contrato Criado',
     details: 'Contrato 8000 gerado',
     timestamp: '2023-09-15T10:00:00Z',
+  },
+]
+
+export const mockMenuConfigs: MenuConfig[] = [
+  {
+    id: '1',
+    name: 'Festa Kids Tradicional',
+    price50Guests: 5500,
+    extraGuestPre: 90,
+    extraGuestDay: 120,
+  },
+  {
+    id: '2',
+    name: 'Teen Party Snacks',
+    price50Guests: 6500,
+    extraGuestPre: 110,
+    extraGuestDay: 150,
+  },
+]
+
+export const mockProducts: Product[] = [
+  {
+    id: 'p1',
+    name: 'Farinha de Trigo 1kg',
+    supplier: 'Fornecedor A',
+    category: 'Insumos Básicos',
+    currentStock: 20,
+  },
+  {
+    id: 'p2',
+    name: 'Refrigerante Cola 2L',
+    supplier: 'Bebidas e Cia',
+    category: 'Bebidas',
+    currentStock: 50,
+  },
+  {
+    id: 'p3',
+    name: 'Copo Descartável 200ml',
+    supplier: 'Embalagens XYZ',
+    category: 'Descartáveis',
+    currentStock: 1000,
+  },
+]
+
+export const mockEventSupplies: EventSupply[] = [
+  { id: 'es1', eventId: '1', productId: 'p2', quantity: 10 },
+  { id: 'es2', eventId: '1', productId: 'p3', quantity: 200 },
+]
+
+export const mockOutsourced: OutsourcedService[] = [
+  {
+    id: 'os1',
+    eventId: '1',
+    type: 'Bolo',
+    description: 'Bolo de Chocolate 5kg',
+    cost: 350,
+    supplier: 'Confeitaria Doce Sabor',
+    date: new Date().toISOString().split('T')[0],
+    status: 'Pendente',
+  },
+  {
+    id: 'os2',
+    eventId: '1',
+    type: 'Tema',
+    description: 'Decoração Princesas Mágicas',
+    cost: 1200,
+    supplier: 'Decora Festas',
+    date: new Date().toISOString().split('T')[0],
+    status: 'Pago',
+  },
+]
+
+export const mockKitchenTasks: KitchenTask[] = [
+  { id: 'kt1', eventId: '1', itemName: 'Coxinha (100 un)', quantity: 5, status: 'Pendente' },
+  { id: 'kt2', eventId: '1', itemName: 'Mini Pizza', quantity: 200, status: 'Concluído' },
+]
+
+export const mockEventChecklists: EventChecklist[] = [
+  {
+    eventId: '1',
+    items: [
+      { id: 'c1', task: 'Verificar limpeza do salão', isChecked: true },
+      { id: 'c2', task: 'Testar som e iluminação', isChecked: false },
+      { id: 'c3', task: 'Confirmar entrega do bolo', isChecked: false },
+      { id: 'c4', task: 'Checar uniforme da equipe', isChecked: false },
+    ],
   },
 ]

@@ -23,6 +23,12 @@ import {
   mockTeam,
   mockEscalas,
   mockLogs,
+  mockMenuConfigs,
+  mockProducts,
+  mockEventSupplies,
+  mockOutsourced,
+  mockKitchenTasks,
+  mockEventChecklists,
 } from './mockData'
 
 interface AppState {
@@ -50,6 +56,21 @@ interface AppState {
   logs: AuditLog[]
   addLog: (action: string, details: string) => void
   nextContractNumber: number
+
+  menuConfigs: import('@/lib/types').MenuConfig[]
+  setMenuConfigs: React.Dispatch<React.SetStateAction<import('@/lib/types').MenuConfig[]>>
+  products: import('@/lib/types').Product[]
+  setProducts: React.Dispatch<React.SetStateAction<import('@/lib/types').Product[]>>
+  eventSupplies: import('@/lib/types').EventSupply[]
+  setEventSupplies: React.Dispatch<React.SetStateAction<import('@/lib/types').EventSupply[]>>
+  outsourcedServices: import('@/lib/types').OutsourcedService[]
+  setOutsourcedServices: React.Dispatch<
+    React.SetStateAction<import('@/lib/types').OutsourcedService[]>
+  >
+  kitchenTasks: import('@/lib/types').KitchenTask[]
+  setKitchenTasks: React.Dispatch<React.SetStateAction<import('@/lib/types').KitchenTask[]>>
+  eventChecklists: import('@/lib/types').EventChecklist[]
+  setEventChecklists: React.Dispatch<React.SetStateAction<import('@/lib/types').EventChecklist[]>>
 }
 
 const AppContext = createContext<AppState | undefined>(undefined)
@@ -94,6 +115,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [logs, setLogs] = useState<AuditLog[]>(mockLogs)
 
   const [nextContractNumber, setNextContractNumber] = useState(8001)
+
+  const [menuConfigs, setMenuConfigs] =
+    useState<import('@/lib/types').MenuConfig[]>(mockMenuConfigs)
+  const [products, setProducts] = useState<import('@/lib/types').Product[]>(mockProducts)
+  const [eventSupplies, setEventSupplies] =
+    useState<import('@/lib/types').EventSupply[]>(mockEventSupplies)
+  const [outsourcedServices, setOutsourcedServices] =
+    useState<import('@/lib/types').OutsourcedService[]>(mockOutsourced)
+  const [kitchenTasks, setKitchenTasks] =
+    useState<import('@/lib/types').KitchenTask[]>(mockKitchenTasks)
+  const [eventChecklists, setEventChecklists] =
+    useState<import('@/lib/types').EventChecklist[]>(mockEventChecklists)
 
   const login = (email: string, pass: string) => {
     const user = MOCK_USERS.find((u) => u.email === email)
@@ -158,6 +191,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         logs,
         addLog,
         nextContractNumber,
+
+        menuConfigs,
+        setMenuConfigs,
+        products,
+        setProducts,
+        eventSupplies,
+        setEventSupplies,
+        outsourcedServices,
+        setOutsourcedServices,
+        kitchenTasks,
+        setKitchenTasks,
+        eventChecklists,
+        setEventChecklists,
       }}
     >
       {children}

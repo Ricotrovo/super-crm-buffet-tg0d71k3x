@@ -11,6 +11,8 @@ import {
   LogOut,
   Settings,
   ChevronRight,
+  UtensilsCrossed,
+  ListTodo,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -40,16 +42,37 @@ export function AppSidebar() {
 
   const navItems = [
     { title: 'Dashboard', icon: LayoutDashboard, url: '/', roles: ['Admin', 'Gerente'] },
-    { title: 'Agenda/Salões', icon: CalendarDays, url: '/agenda', roles: ['Admin', 'Gerente'] },
+    {
+      title: 'Agenda/Salões',
+      icon: CalendarDays,
+      url: '/agenda',
+      roles: ['Admin', 'Gerente', 'Operacional'],
+    },
     { title: 'Contratos', icon: FileText, url: '/contratos', roles: ['Admin', 'Gerente'] },
     { title: 'Leads CRM', icon: Users, url: '/leads', roles: ['Admin'] },
     { title: 'Produção', icon: Package, url: '/estoque', roles: ['Admin'] },
+    {
+      title: 'Cozinha',
+      icon: UtensilsCrossed,
+      url: '/cozinha',
+      roles: ['Admin', 'Cozinha', 'Gerente'],
+    },
+    {
+      title: 'Checklist (Pré-evento)',
+      icon: ListTodo,
+      url: '/checklist',
+      roles: ['Admin', 'Gerente', 'Operacional'],
+    },
     { title: 'Freelancers', icon: UsersRound, url: '/equipe', roles: ['Admin', 'Freelancer'] },
     { title: 'Financeiro', icon: DollarSign, url: '/financeiro', roles: ['Admin', 'Gerente'] },
     { title: 'Auditoria', icon: ShieldAlert, url: '/relatorios', roles: ['Admin'] },
   ]
 
   const admItems = [
+    { title: 'Cardápios', url: '/adm/cardapios' },
+    { title: 'Produtos / Estoque', url: '/adm/produtos' },
+    { title: 'Insumos do Evento', url: '/adm/insumos' },
+    { title: 'Terceirizados', url: '/adm/terceirizados' },
     { title: 'Funcionários', url: '/adm/funcionarios' },
     { title: 'Fornecedores', url: '/adm/fornecedores' },
     { title: 'Freelancers', url: '/adm/freelancers' },
