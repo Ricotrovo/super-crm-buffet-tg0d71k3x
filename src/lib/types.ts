@@ -11,11 +11,30 @@ export interface User {
 
 export type LeadStage = 'Novo' | 'Qualificado' | 'Agendado' | 'Contrato' | 'Perdido'
 
+export interface LeadChild {
+  id: string
+  name: string
+  birthDate: string
+}
+
 export interface Lead {
   id: string
   name: string
-  source: 'WhatsApp' | 'Instagram' | 'Facebook'
+  source: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Outros'
   phone: string
+  mobilePhone?: string
+  businessPhone?: string
+  email?: string
+  instagramProfile?: string
+  children?: LeadChild[]
+  eventDate?: string
+  guestCount?: number
+  selectedMenu?: string
+  hasVisited?: boolean
+  hasTasted?: boolean
+  visitDate?: string
+  observations?: string
+  score?: number
   stage: LeadStage
   daysInStage: number
   createdAt: string

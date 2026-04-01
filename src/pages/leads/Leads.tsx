@@ -3,13 +3,33 @@ import { useAppStore } from '@/stores/main'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ChevronRight, MessageCircle, Instagram, Facebook, Plus, BrainCircuit } from 'lucide-react'
+import {
+  ChevronRight,
+  MessageCircle,
+  Instagram,
+  Facebook,
+  Plus,
+  BrainCircuit,
+  Flame,
+  Calendar,
+  Users,
+  HelpCircle,
+} from 'lucide-react'
 import { LeadStage, Lead } from '@/lib/types'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { LeadFormDialog } from './LeadFormDialog'
+import { cn } from '@/lib/utils'
 
 const STAGES: LeadStage[] = ['Novo', 'Qualificado', 'Agendado', 'Contrato', 'Perdido']
 
@@ -18,6 +38,8 @@ export default function Leads() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const [chatLead, setChatLead] = useState<Lead | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [scoreFilter, setScoreFilter] = useState<string>('all')
 
   const moveLead = (lead: Lead, direction: 1 | -1) => {
     const currentIndex = STAGES.indexOf(lead.stage)
@@ -43,6 +65,7 @@ export default function Leads() {
             ? {
                 ...l,
                 aiSummary: 'Cliente quer festa para 80 pessoas em Dezembro. Orçamento: R$ 6000.',
+                score: 9,
               }
             : l,
         ),
@@ -51,13 +74,52 @@ export default function Leads() {
     }, 1500)
   }
 
+  const handleSaveLead = (leadData: Partial<Lead>) => {
+    const newLead: Lead = {
+      id: Math.random().toString(36).substring(7),
+      name: leadData.name || 'Sem Nome',
+      source: (leadData.source as any) || 'WhatsApp',
+      phone: leadData.mobilePhone || leadData.phone || '',
+      stage: 'Novo',
+      daysInStage: 0,
+      createdAt: new Date().toISOString(),
+      ...leadData,
+    } as Lead
+
+    setLeads((prev) => [...prev, newLead])
+    addLog('Lead Criado', `Novo lead ${newLead.name} adicionado`)
+    toast({ title: 'Sucesso', description: 'Lead cadastrado com sucesso!' })
+  }
+
+  const filteredLeads = leads.filter((l) => {
+    if (scoreFilter === 'all') return true
+    const score = l.score || 5
+    if (scoreFilter === 'hot') return score >= 9
+    if (scoreFilter === 'warm') return score >= 7 && score <= 8
+    if (scoreFilter === 'cold') return score <= 6
+    return true
+  })
+
   return (
     <div className="space-y-6 h-full flex flex-col">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold text-secondary">Funil de Vendas</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Novo Lead
-        </Button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <Select value={scoreFilter} onValueChange={setScoreFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Filtrar Temperatura" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Leads</SelectItem>
+              <SelectItem value="hot">🔥 Quentes (9-10)</SelectItem>
+              <SelectItem value="warm">⭐ Mornos (7-8)</SelectItem>
+              <SelectItem value="cold">❄️ Frios (5-6)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Novo Lead
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4 flex-1 items-start">
@@ -68,10 +130,12 @@ export default function Leads() {
           >
             <div className="flex justify-between items-center px-1">
               <h3 className="font-semibold text-sm">{stage}</h3>
-              <Badge variant="secondary">{leads.filter((l) => l.stage === stage).length}</Badge>
+              <Badge variant="secondary">
+                {filteredLeads.filter((l) => l.stage === stage).length}
+              </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {leads
+              {filteredLeads
                 .filter((l) => l.stage === stage)
                 .map((lead) => (
                   <LeadCard
@@ -87,6 +151,8 @@ export default function Leads() {
           </div>
         ))}
       </div>
+
+      <LeadFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} onSave={handleSaveLead} />
 
       {chatLead && (
         <Dialog open={!!chatLead} onOpenChange={(open) => !open && setChatLead(null)}>
@@ -136,6 +202,8 @@ function LeadCard({
   onAI: () => void
   isLast: boolean
 }) {
+  const isHot = lead.score && lead.score >= 9
+
   const getIcon = () => {
     switch (lead.source) {
       case 'WhatsApp':
@@ -144,11 +212,18 @@ function LeadCard({
         return <Instagram className="h-4 w-4 text-pink-500" />
       case 'Facebook':
         return <Facebook className="h-4 w-4 text-blue-500" />
+      default:
+        return <HelpCircle className="h-4 w-4 text-muted-foreground" />
     }
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow border-l-4 border-l-primary group">
+    <Card
+      className={cn(
+        'hover:shadow-md transition-all border-l-4 group relative overflow-hidden',
+        isHot ? 'border-l-red-500 bg-red-500/5 hover:bg-red-500/10' : 'border-l-primary',
+      )}
+    >
       <CardContent className="p-3">
         <div className="flex justify-between items-start mb-2">
           <div
@@ -158,8 +233,40 @@ function LeadCard({
             {getIcon()}
             {lead.name}
           </div>
+          {isHot && (
+            <Badge
+              variant="destructive"
+              className="h-5 px-1.5 text-[10px] gap-1 bg-red-500 hover:bg-red-600 border-none shrink-0"
+            >
+              <Flame className="w-3 h-3" /> Quente
+            </Badge>
+          )}
         </div>
-        <div className="text-xs text-muted-foreground mb-2">{lead.phone}</div>
+
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-xs text-muted-foreground">{lead.mobilePhone || lead.phone}</div>
+          {lead.score !== undefined && !isHot && (
+            <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              Score: {lead.score}
+            </span>
+          )}
+        </div>
+
+        {(lead.eventDate || lead.guestCount) && (
+          <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground mb-3 bg-background/50 p-1.5 rounded border border-border/50">
+            {lead.eventDate && (
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {new Date(lead.eventDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+              </span>
+            )}
+            {lead.guestCount !== undefined && lead.guestCount > 0 && (
+              <span className="flex items-center gap-1">
+                <Users className="w-3 h-3" /> {lead.guestCount} conv.
+              </span>
+            )}
+          </div>
+        )}
 
         {lead.aiSummary ? (
           <div className="bg-primary/5 border border-primary/10 text-xs p-2 rounded mb-3 flex items-start gap-2">
@@ -178,7 +285,7 @@ function LeadCard({
         )}
 
         <div className="flex justify-between items-center mt-2">
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-1 rounded-full">
+          <span className="text-[10px] text-muted-foreground bg-background px-2 py-1 rounded-full border">
             {lead.daysInStage} dias aqui
           </span>
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
