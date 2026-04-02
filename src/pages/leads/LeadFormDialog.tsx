@@ -45,7 +45,6 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
     score: 5,
   })
 
-  // Reset form when opened
   useEffect(() => {
     if (open) {
       setFormData({
@@ -93,32 +92,41 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
 
   const calculateAge = (birthDate: string, eventDate?: string) => {
     if (!birthDate) return ''
-
-    // Append T12:00:00 to avoid timezone issues with pure dates
-    const birth = new Date(`${birthDate}T12:00:00`)
-    if (!isValid(birth)) return ''
-
-    const targetDate = eventDate ? new Date(`${eventDate}T12:00:00`) : new Date()
-    if (!isValid(targetDate)) return ''
-
-    const age = differenceInYears(targetDate, birth)
-    return age >= 0 ? `${age} anos` : 'A nascer'
+    try {
+      const birth = new Date(`${birthDate}T12:00:00`)
+      if (!isValid(birth)) return ''
+      const targetDate = eventDate ? new Date(`${eventDate}T12:00:00`) : new Date()
+      if (!isValid(targetDate)) return ''
+      const age = differenceInYears(targetDate, birth)
+      return age >= 0 ? `${age} anos` : 'A nascer'
+    } catch {
+      return ''
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.name?.trim() || !formData.mobilePhone?.trim()) {
+    try {
+      if (!formData.name?.trim() || !formData.mobilePhone?.trim()) {
+        toast({
+          title: 'Erro de Validação',
+          description: 'Nome e Celular são campos obrigatórios.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      onSave(formData)
+      onOpenChange(false)
+    } catch (err) {
+      console.error(err)
       toast({
-        title: 'Erro de Validação',
-        description: 'Nome e Celular são campos obrigatórios.',
+        title: 'Erro Interno',
+        description: 'Não foi possível validar os dados do formulário.',
         variant: 'destructive',
       })
-      return
     }
-
-    onSave(formData)
-    onOpenChange(false)
   }
 
   return (
@@ -129,7 +137,6 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
         </DialogHeader>
         <ScrollArea className="flex-1 px-6 py-4">
           <form id="lead-form" onSubmit={handleSubmit} className="space-y-8 pb-4">
-            {/* Personal Info */}
             <section className="space-y-4">
               <h3 className="text-lg font-semibold border-b pb-2">Informações de Contato</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,7 +198,6 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
               </div>
             </section>
 
-            {/* Children Info */}
             <section className="space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
                 <h3 className="text-lg font-semibold">Aniversariantes (Filhos)</h3>
@@ -246,7 +252,6 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
               </div>
             </section>
 
-            {/* Event Details */}
             <section className="space-y-4">
               <h3 className="text-lg font-semibold border-b pb-2">Detalhes do Evento</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -263,8 +268,15 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   <Input
                     type="number"
                     min="0"
-                    value={formData.guestCount || ''}
-                    onChange={(e) => handleChange('guestCount', parseInt(e.target.value, 10))}
+                    value={
+                      formData.guestCount === undefined || Number.isNaN(formData.guestCount)
+                        ? ''
+                        : formData.guestCount
+                    }
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10)
+                      handleChange('guestCount', isNaN(val) ? 0 : val)
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -277,7 +289,6 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
               </div>
             </section>
 
-            {/* Qualification */}
             <section className="space-y-4">
               <h3 className="text-lg font-semibold border-b pb-2">Qualificação e Visita</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

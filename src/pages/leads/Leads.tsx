@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from '@/stores/main'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -30,65 +30,150 @@ import {
 } from '@/components/ui/select'
 import { LeadFormDialog } from './LeadFormDialog'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase/client'
 
 const STAGES: LeadStage[] = ['Novo', 'Qualificado', 'Agendado', 'Contrato', 'Perdido']
 
 export default function Leads() {
-  const { leads, setLeads, addLog } = useAppStore()
+  const { addLog } = useAppStore()
   const { toast } = useToast()
   const navigate = useNavigate()
+
+  const [leads, setLeads] = useState<Lead[]>([])
   const [chatLead, setChatLead] = useState<Lead | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [scoreFilter, setScoreFilter] = useState<string>('all')
 
-  const moveLead = (lead: Lead, direction: 1 | -1) => {
+  useEffect(() => {
+    fetchLeads()
+  }, [])
+
+  const fetchLeads = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('createdAt', { ascending: false })
+
+      if (error) throw error
+
+      if (data) {
+        setLeads(data as unknown as Lead[])
+      }
+    } catch (err: any) {
+      console.error('Error fetching leads:', err)
+      toast({
+        title: 'Aviso',
+        description: 'Erro ao carregar do Supabase. Operando em modo de fallback.',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const moveLead = async (lead: Lead, direction: 1 | -1) => {
     const currentIndex = STAGES.indexOf(lead.stage)
     const newStage = STAGES[currentIndex + direction]
     if (newStage) {
-      setLeads((prev) =>
-        prev.map((l) => (l.id === lead.id ? { ...l, stage: newStage, daysInStage: 0 } : l)),
-      )
-      addLog('Moveu Lead', `${lead.name} para ${newStage}`)
-      if (newStage === 'Contrato') {
-        toast({ title: 'Lead Convertido!', description: 'Redirecionando para gerar contrato...' })
-        setTimeout(() => navigate('/contratos'), 1500)
+      try {
+        const { error } = await supabase
+          .from('leads')
+          .update({ stage: newStage, daysInStage: 0 })
+          .eq('id', lead.id)
+
+        if (error) throw error
+
+        setLeads((prev) =>
+          prev.map((l) => (l.id === lead.id ? { ...l, stage: newStage, daysInStage: 0 } : l)),
+        )
+        addLog('Moveu Lead', `${lead.name} para ${newStage}`)
+        if (newStage === 'Contrato') {
+          toast({ title: 'Lead Convertido!', description: 'Redirecionando para gerar contrato...' })
+          setTimeout(() => navigate('/contratos'), 1500)
+        }
+      } catch (err: any) {
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível mover o lead.',
+          variant: 'destructive',
+        })
       }
     }
   }
 
-  const simulateAI = (lead: Lead) => {
+  const simulateAI = async (lead: Lead) => {
     toast({ title: 'Analisando mensagens...', description: 'Extraindo intenção do cliente.' })
-    setTimeout(() => {
-      setLeads((prev) =>
-        prev.map((l) =>
-          l.id === lead.id
-            ? {
-                ...l,
-                aiSummary: 'Cliente quer festa para 80 pessoas em Dezembro. Orçamento: R$ 6000.',
-                score: 9,
-              }
-            : l,
-        ),
-      )
-      toast({ title: 'Análise Concluída', description: 'Resumo de IA gerado com sucesso.' })
+    setTimeout(async () => {
+      try {
+        const summary = 'Cliente quer festa para 80 pessoas em Dezembro. Orçamento: R$ 6000.'
+        const { error } = await supabase
+          .from('leads')
+          .update({ aiSummary: summary, score: 9 })
+          .eq('id', lead.id)
+
+        if (error) throw error
+
+        setLeads((prev) =>
+          prev.map((l) => (l.id === lead.id ? { ...l, aiSummary: summary, score: 9 } : l)),
+        )
+        toast({ title: 'Análise Concluída', description: 'Resumo de IA gerado com sucesso.' })
+      } catch (err) {
+        toast({
+          title: 'Erro IA',
+          description: 'Falha ao processar análise.',
+          variant: 'destructive',
+        })
+      }
     }, 1500)
   }
 
-  const handleSaveLead = (leadData: Partial<Lead>) => {
-    const newLead: Lead = {
-      ...leadData,
-      id: Math.random().toString(36).substring(7),
-      name: leadData.name || 'Sem Nome',
-      source: (leadData.source as any) || 'WhatsApp',
-      phone: leadData.mobilePhone || leadData.phone || '',
-      stage: 'Novo',
-      daysInStage: 0,
-      createdAt: new Date().toISOString(),
-    } as Lead
+  const handleSaveLead = async (leadData: Partial<Lead>) => {
+    try {
+      const newLeadData = {
+        name: leadData.name || 'Sem Nome',
+        source: leadData.source || 'WhatsApp',
+        phone: leadData.mobilePhone || leadData.phone || '',
+        mobilePhone: leadData.mobilePhone || '',
+        businessPhone: leadData.businessPhone || '',
+        email: leadData.email || '',
+        instagramProfile: leadData.instagramProfile || '',
+        eventDate: leadData.eventDate ? leadData.eventDate : null,
+        guestCount:
+          typeof leadData.guestCount === 'number' && !isNaN(leadData.guestCount)
+            ? leadData.guestCount
+            : 0,
+        selectedMenu: leadData.selectedMenu || '',
+        hasVisited: !!leadData.hasVisited,
+        hasTasted: !!leadData.hasTasted,
+        visitDate: leadData.visitDate ? leadData.visitDate : null,
+        observations: leadData.observations || '',
+        score: typeof leadData.score === 'number' ? leadData.score : 5,
+        stage: 'Novo',
+        daysInStage: 0,
+        aiSummary: leadData.aiSummary || '',
+        children: leadData.children || [],
+        createdAt: new Date().toISOString(),
+      }
 
-    setLeads((prev) => [...prev, newLead])
-    addLog('Lead Criado', `Novo lead ${newLead.name} adicionado`)
-    toast({ title: 'Sucesso', description: 'Lead cadastrado com sucesso!' })
+      const { data, error } = await supabase.from('leads').insert([newLeadData]).select().single()
+
+      if (error) {
+        console.error('Supabase Error:', error)
+        throw new Error(error.message)
+      }
+
+      if (data) {
+        setLeads((prev) => [data as unknown as Lead, ...prev])
+        addLog('Lead Criado', `Novo lead ${data.name} adicionado`)
+        toast({ title: 'Sucesso', description: 'Lead cadastrado com sucesso!' })
+      }
+    } catch (err: any) {
+      console.error('Error saving lead:', err)
+      toast({
+        title: 'Erro ao salvar',
+        description: err.message || 'Falha ao conectar com o banco de dados.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const filteredLeads = leads.filter((l) => {
@@ -217,6 +302,19 @@ function LeadCard({
     }
   }
 
+  const renderDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null
+    try {
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return null
+      return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+    } catch {
+      return null
+    }
+  }
+
+  const safeEventDate = renderDate(lead.eventDate)
+
   return (
     <Card
       className={cn(
@@ -252,12 +350,12 @@ function LeadCard({
           )}
         </div>
 
-        {(lead.eventDate || lead.guestCount) && (
+        {safeEventDate || lead.guestCount ? (
           <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground mb-3 bg-background/50 p-1.5 rounded border border-border/50">
-            {lead.eventDate && (
+            {safeEventDate && (
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {new Date(lead.eventDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                {safeEventDate}
               </span>
             )}
             {lead.guestCount !== undefined && lead.guestCount > 0 && (
@@ -266,7 +364,7 @@ function LeadCard({
               </span>
             )}
           </div>
-        )}
+        ) : null}
 
         {lead.aiSummary ? (
           <div className="bg-primary/5 border border-primary/10 text-xs p-2 rounded mb-3 flex items-start gap-2">
