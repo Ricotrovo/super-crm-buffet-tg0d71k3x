@@ -82,8 +82,27 @@ export default function Menus() {
   }
 
   const handleSave = () => {
-    if (!formData.name)
-      return toast({ title: 'Erro', description: 'Nome obrigatório', variant: 'destructive' })
+    if (!formData.name?.trim()) {
+      toast({
+        title: 'Erro de Validação',
+        description: 'Nome do cardápio é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const invalidOptional = formData.optionalItems.find(
+      (opt) => opt.triggersExtraStaff && !opt.staffRole,
+    )
+    if (invalidOptional) {
+      toast({
+        title: 'Erro de Validação',
+        description: `O opcional "${invalidOptional.name || 'Sem Nome'}" exige +1 funcionário, mas nenhuma função foi selecionada.`,
+        variant: 'destructive',
+      })
+      return
+    }
+
     if (editingId) {
       setMenuConfigs((prev) => prev.map((m) => (m.id === editingId ? { ...m, ...formData } : m)))
       addLog('Cardápio Atualizado', `Cardápio: ${formData.name}`)
@@ -180,7 +199,7 @@ export default function Menus() {
               <div className="grid gap-2">
                 <Label>Nome do Cardápio</Label>
                 <Input
-                  value={formData.name}
+                  value={formData.name || ''}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
@@ -189,7 +208,7 @@ export default function Menus() {
                   <Label>Pacote 50 Conv. (R$)</Label>
                   <Input
                     type="number"
-                    value={formData.price50Guests}
+                    value={formData.price50Guests || ''}
                     onChange={(e) =>
                       setFormData({ ...formData, price50Guests: Number(e.target.value) })
                     }
@@ -199,7 +218,7 @@ export default function Menus() {
                   <Label>Conv. Extra Pré-evento (R$)</Label>
                   <Input
                     type="number"
-                    value={formData.extraGuestPre}
+                    value={formData.extraGuestPre || ''}
                     onChange={(e) =>
                       setFormData({ ...formData, extraGuestPre: Number(e.target.value) })
                     }
@@ -210,7 +229,7 @@ export default function Menus() {
                 <Label>Conv. Extra no Dia do Evento (R$)</Label>
                 <Input
                   type="number"
-                  value={formData.extraGuestDay}
+                  value={formData.extraGuestDay || ''}
                   onChange={(e) =>
                     setFormData({ ...formData, extraGuestDay: Number(e.target.value) })
                   }
@@ -259,7 +278,7 @@ export default function Menus() {
                     <Input
                       type="number"
                       min="1"
-                      value={staff.quantity}
+                      value={staff.quantity || ''}
                       className="w-24"
                       onChange={(e) => {
                         const newStaff = [...formData.baseStaff]
@@ -311,7 +330,7 @@ export default function Menus() {
                     <Input
                       type="number"
                       min="1"
-                      value={rule.guestThreshold}
+                      value={rule.guestThreshold || ''}
                       className="w-20"
                       onChange={(e) => {
                         const newRules = [...formData.scalingRules]
@@ -323,7 +342,7 @@ export default function Menus() {
                     <Input
                       type="number"
                       min="1"
-                      value={rule.extraQuantity}
+                      value={rule.extraQuantity || ''}
                       className="w-20"
                       onChange={(e) => {
                         const newRules = [...formData.scalingRules]
@@ -397,7 +416,7 @@ export default function Menus() {
                     <div className="flex-1">
                       <Label className="text-xs">Nome do Serviço</Label>
                       <Input
-                        value={opt.name}
+                        value={opt.name || ''}
                         onChange={(e) => {
                           const newOpts = [...formData.optionalItems]
                           newOpts[i].name = e.target.value
@@ -409,7 +428,7 @@ export default function Menus() {
                       <Label className="text-xs">Valor (R$)</Label>
                       <Input
                         type="number"
-                        value={opt.price}
+                        value={opt.price || ''}
                         onChange={(e) => {
                           const newOpts = [...formData.optionalItems]
                           newOpts[i].price = Number(e.target.value)

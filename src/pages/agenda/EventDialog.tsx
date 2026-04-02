@@ -63,9 +63,9 @@ export default function EventDialog({
   }
 
   const handleSave = () => {
-    if (!clientName || !date || !time) {
+    if (!clientName?.trim() || !date || !time) {
       toast({
-        title: 'Erro',
+        title: 'Erro de Validação',
         description: 'Preencha os campos obrigatórios (Cliente, Data, Horário).',
         variant: 'destructive',
       })
@@ -85,17 +85,17 @@ export default function EventDialog({
     }
 
     const newEvent = {
-      id: Math.random().toString(),
+      id: Math.random().toString(36).substring(7),
       clientId: `c${Date.now()}`,
       clientName,
       contractNumber,
-      menu: selectedMenuConfig?.name,
+      menu: selectedMenuConfig?.name || '',
       menuId,
       date,
       time,
       hall,
       status: 'Confirmado' as const,
-      guests: parseInt(guests) || 0,
+      guests: parseInt(guests, 10) || 0,
       selectedOptionals,
     }
 

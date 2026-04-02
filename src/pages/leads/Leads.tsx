@@ -76,6 +76,7 @@ export default function Leads() {
 
   const handleSaveLead = (leadData: Partial<Lead>) => {
     const newLead: Lead = {
+      ...leadData,
       id: Math.random().toString(36).substring(7),
       name: leadData.name || 'Sem Nome',
       source: (leadData.source as any) || 'WhatsApp',
@@ -83,7 +84,6 @@ export default function Leads() {
       stage: 'Novo',
       daysInStage: 0,
       createdAt: new Date().toISOString(),
-      ...leadData,
     } as Lead
 
     setLeads((prev) => [...prev, newLead])

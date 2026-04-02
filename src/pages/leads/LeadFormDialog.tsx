@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,6 +26,7 @@ interface LeadFormDialogProps {
 }
 
 export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogProps) {
+  const { toast } = useToast()
   const [formData, setFormData] = useState<Partial<Lead>>({
     name: '',
     mobilePhone: '',
@@ -105,6 +107,16 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!formData.name?.trim() || !formData.mobilePhone?.trim()) {
+      toast({
+        title: 'Erro de Validação',
+        description: 'Nome e Celular são campos obrigatórios.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     onSave(formData)
     onOpenChange(false)
   }
@@ -125,13 +137,16 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   <Label>Nome do Lead *</Label>
                   <Input
                     required
-                    value={formData.name}
+                    value={formData.name || ''}
                     onChange={(e) => handleChange('name', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Origem</Label>
-                  <Select value={formData.source} onValueChange={(v) => handleChange('source', v)}>
+                  <Select
+                    value={formData.source || 'WhatsApp'}
+                    onValueChange={(v) => handleChange('source', v)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -147,14 +162,14 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   <Label>Celular *</Label>
                   <Input
                     required
-                    value={formData.mobilePhone}
+                    value={formData.mobilePhone || ''}
                     onChange={(e) => handleChange('mobilePhone', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Telefone Comercial</Label>
                   <Input
-                    value={formData.businessPhone}
+                    value={formData.businessPhone || ''}
                     onChange={(e) => handleChange('businessPhone', e.target.value)}
                   />
                 </div>
@@ -162,14 +177,14 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   <Label>Email</Label>
                   <Input
                     type="email"
-                    value={formData.email}
+                    value={formData.email || ''}
                     onChange={(e) => handleChange('email', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Perfil do Instagram</Label>
                   <Input
-                    value={formData.instagramProfile}
+                    value={formData.instagramProfile || ''}
                     onChange={(e) => handleChange('instagramProfile', e.target.value)}
                   />
                 </div>
@@ -193,7 +208,7 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                     <div className="w-full sm:flex-1 space-y-2">
                       <Label>Nome da Criança</Label>
                       <Input
-                        value={child.name}
+                        value={child.name || ''}
                         onChange={(e) => updateChild(child.id, 'name', e.target.value)}
                       />
                     </div>
@@ -201,7 +216,7 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                       <Label>Nascimento</Label>
                       <Input
                         type="date"
-                        value={child.birthDate}
+                        value={child.birthDate || ''}
                         onChange={(e) => updateChild(child.id, 'birthDate', e.target.value)}
                       />
                     </div>
@@ -239,7 +254,7 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   <Label>Data da Festa</Label>
                   <Input
                     type="date"
-                    value={formData.eventDate}
+                    value={formData.eventDate || ''}
                     onChange={(e) => handleChange('eventDate', e.target.value)}
                   />
                 </div>
@@ -249,13 +264,13 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                     type="number"
                     min="0"
                     value={formData.guestCount || ''}
-                    onChange={(e) => handleChange('guestCount', parseInt(e.target.value))}
+                    onChange={(e) => handleChange('guestCount', parseInt(e.target.value, 10))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Cardápio Escolhido</Label>
                   <Input
-                    value={formData.selectedMenu}
+                    value={formData.selectedMenu || ''}
                     onChange={(e) => handleChange('selectedMenu', e.target.value)}
                   />
                 </div>
@@ -286,7 +301,7 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                       <Label>Data da Visita</Label>
                       <Input
                         type="date"
-                        value={formData.visitDate}
+                        value={formData.visitDate || ''}
                         onChange={(e) => handleChange('visitDate', e.target.value)}
                       />
                     </div>
@@ -318,7 +333,7 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                 <Textarea
                   className="min-h-[100px] resize-y"
                   placeholder="Detalhes da negociação, relatórios da visita, objeções do cliente..."
-                  value={formData.observations}
+                  value={formData.observations || ''}
                   onChange={(e) => handleChange('observations', e.target.value)}
                 />
               </div>

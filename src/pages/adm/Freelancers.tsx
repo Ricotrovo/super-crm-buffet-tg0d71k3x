@@ -147,6 +147,16 @@ export default function Freelancers() {
       return
     }
 
+    const roleNames = formData.roles?.map((r) => r.role) || []
+    if (new Set(roleNames).size !== roleNames.length) {
+      toast({
+        title: 'Funções Duplicadas',
+        description: 'O freelancer não pode ter a mesma função repetida.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     const addressStr = formData.street
       ? `${formData.street}, ${formData.number || 'S/N'} - ${formData.neighborhood}, ${formData.city}/${formData.state}`
       : formData.address || ''
