@@ -64,11 +64,24 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
         observations: '',
         score: 5,
       })
+      setErrors({})
     }
   }, [open])
 
+  const maskPhone = (val: string) => {
+    let v = val.replace(/\D/g, '')
+    if (v.length <= 2) return v.length > 0 ? `(${v}` : v
+    if (v.length <= 6) return `(${v.slice(0, 2)}) ${v.slice(2)}`
+    if (v.length <= 10) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`
+    return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7, 11)}`
+  }
+
   const handleChange = (field: keyof Lead, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    let finalValue = value
+    if (field === 'mobilePhone' || field === 'businessPhone') {
+      finalValue = maskPhone(value)
+    }
+    setFormData((prev) => ({ ...prev, [field]: finalValue }))
   }
 
   const addChild = () => {
@@ -104,14 +117,24 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
     }
   }
 
+  const [errors, setErrors] = useState<{ name?: boolean; mobilePhone?: boolean }>({})
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    const newErrors = {
+      name: !formData.name?.trim(),
+      mobilePhone:
+        !formData.mobilePhone?.trim() || formData.mobilePhone.replace(/\D/g, '').length < 10,
+    }
+
+    setErrors(newErrors)
+
     try {
-      if (!formData.name?.trim() || !formData.mobilePhone?.trim()) {
+      if (newErrors.name || newErrors.mobilePhone) {
         toast({
-          title: 'Erro de Validação',
-          description: 'Nome e Celular são campos obrigatórios.',
+          title: 'Campos Obrigatórios',
+          description: 'Por favor, preencha corretamente o Nome e Celular (mínimo 10 dígitos).',
           variant: 'destructive',
         })
         return
@@ -141,12 +164,20 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
               <h3 className="text-lg font-semibold border-b pb-2">Informações de Contato</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Nome do Lead *</Label>
+                  <Label className={errors.name ? 'text-destructive' : ''}>Nome do Lead *</Label>
                   <Input
                     required
+                    className={
+                      errors.name ? 'border-destructive focus-visible:ring-destructive' : ''
+                    }
                     value={formData.name || ''}
-                    onChange={(e) => handleChange('name', e.target.value)}
+                    onChange={(e) => {
+                      handleChange('name', e.target.value)
+                      if (errors.name) setErrors((p) => ({ ...p, name: false }))
+                    }}
+                    placeholder="Ex: Maria Silva"
                   />
+                  {errors.name && <p className="text-xs text-destructive">Nome é obrigatório.</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Origem</Label>
@@ -166,12 +197,23 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Celular *</Label>
+                  <Label className={errors.mobilePhone ? 'text-destructive' : ''}>Celular *</Label>
                   <Input
                     required
+                    className={
+                      errors.mobilePhone ? 'border-destructive focus-visible:ring-destructive' : ''
+                    }
                     value={formData.mobilePhone || ''}
-                    onChange={(e) => handleChange('mobilePhone', e.target.value)}
+                    onChange={(e) => {
+                      handleChange('mobilePhone', e.target.value)
+                      if (errors.mobilePhone) setErrors((p) => ({ ...p, mobilePhone: false }))
+                    }}
+                    placeholder="(11) 99999-9999"
+                    maxLength={15}
                   />
+                  {errors.mobilePhone && (
+                    <p className="text-xs text-destructive">Celular inválido.</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Telefone Comercial</Label>

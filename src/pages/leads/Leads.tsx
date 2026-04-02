@@ -14,6 +14,7 @@ import {
   Calendar,
   Users,
   HelpCircle,
+  Search,
 } from 'lucide-react'
 import { LeadStage, Lead } from '@/lib/types'
 import { useToast } from '@/hooks/use-toast'
@@ -43,6 +44,7 @@ export default function Leads() {
   const [chatLead, setChatLead] = useState<Lead | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [scoreFilter, setScoreFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchLeads()
@@ -177,6 +179,16 @@ export default function Leads() {
   }
 
   const filteredLeads = leads.filter((l) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      const match =
+        l.name?.toLowerCase().includes(q) ||
+        l.email?.toLowerCase().includes(q) ||
+        l.mobilePhone?.includes(q) ||
+        l.phone?.includes(q)
+      if (!match) return false
+    }
+
     if (scoreFilter === 'all') return true
     const score = l.score || 5
     if (scoreFilter === 'hot') return score >= 9
@@ -189,7 +201,17 @@ export default function Leads() {
     <div className="space-y-6 h-full flex flex-col">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold text-secondary">Funil de Vendas</h1>
-        <div className="flex gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-[200px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Buscar leads..."
+              className="w-full pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           <Select value={scoreFilter} onValueChange={setScoreFilter}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Filtrar Temperatura" />
