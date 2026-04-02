@@ -18,6 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Plus, Trash2 } from 'lucide-react'
 import { Lead, LeadChild } from '@/lib/types'
 import { differenceInYears, isValid } from 'date-fns'
+import { useAuth } from '@/hooks/use-auth'
 
 interface LeadFormDialogProps {
   open: boolean
@@ -27,7 +28,8 @@ interface LeadFormDialogProps {
 
 export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogProps) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState<Partial<Lead>>({
+  const { user } = useAuth()
+  const [formData, setFormData] = useState<Partial<Lead> & { user_id?: string }>({
     name: '',
     mobilePhone: '',
     businessPhone: '',
@@ -140,7 +142,8 @@ export function LeadFormDialog({ open, onOpenChange, onSave }: LeadFormDialogPro
         return
       }
 
-      onSave(formData)
+      // Garante que o user_id seja enviado para o Supabase
+      onSave({ ...formData, user_id: user?.id })
       onOpenChange(false)
     } catch (err) {
       console.error(err)
