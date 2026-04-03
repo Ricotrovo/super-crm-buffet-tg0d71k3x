@@ -78,7 +78,12 @@ export default function Products() {
       .from('product_categories')
       .insert([{ name: newCatName.trim(), user_id: user?.id }])
     if (error) {
-      toast({ title: 'Erro', description: 'Falha ao criar categoria', variant: 'destructive' })
+      console.error('Erro ao criar categoria:', error)
+      toast({
+        title: 'Erro',
+        description: error.message || 'Falha ao criar categoria',
+        variant: 'destructive',
+      })
     } else {
       setNewCatName('')
       loadCategories()
@@ -89,7 +94,12 @@ export default function Products() {
   const handleDeleteCategory = async (id: string) => {
     const { error } = await supabase.from('product_categories').delete().eq('id', id)
     if (error) {
-      toast({ title: 'Erro', description: 'Falha ao remover categoria', variant: 'destructive' })
+      console.error('Erro ao remover categoria:', error)
+      toast({
+        title: 'Erro',
+        description: error.message || 'Falha ao remover categoria',
+        variant: 'destructive',
+      })
     } else {
       loadCategories()
       toast({ title: 'Sucesso', description: 'Categoria removida.' })
@@ -119,13 +129,25 @@ export default function Products() {
 
     if (editingId) {
       const { error } = await supabase.from('products').update(formData).eq('id', editingId)
-      if (error)
-        return toast({ title: 'Erro', description: 'Falha ao atualizar', variant: 'destructive' })
+      if (error) {
+        console.error('Erro ao atualizar item:', error)
+        return toast({
+          title: 'Erro',
+          description: error.message || 'Falha ao atualizar',
+          variant: 'destructive',
+        })
+      }
       toast({ title: 'Sucesso', description: 'Produto atualizado.' })
     } else {
       const { error } = await supabase.from('products').insert([{ ...formData, user_id: user?.id }])
-      if (error)
-        return toast({ title: 'Erro', description: 'Falha ao criar', variant: 'destructive' })
+      if (error) {
+        console.error('Erro ao criar item:', error)
+        return toast({
+          title: 'Erro',
+          description: error.message || 'Falha ao criar',
+          variant: 'destructive',
+        })
+      }
       toast({ title: 'Sucesso', description: 'Produto cadastrado.' })
     }
     setIsOpen(false)
