@@ -50,6 +50,10 @@ export default function Products() {
   })
   const [editingId, setEditingId] = useState<string | null>(null)
 
+  const [categories, setCategories] = useState<any[]>([])
+  const [catOpen, setCatOpen] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+
   const loadProducts = async () => {
     const { data } = await supabase
       .from('products')
@@ -58,9 +62,39 @@ export default function Products() {
     if (data) setProducts(data)
   }
 
+  const loadCategories = async () => {
+    const { data } = await supabase.from('product_categories').select('*').order('name')
+    if (data) setCategories(data)
+  }
+
   useEffect(() => {
     loadProducts()
+    loadCategories()
   }, [])
+
+  const handleAddCategory = async () => {
+    if (!newCatName.trim()) return
+    const { error } = await supabase
+      .from('product_categories')
+      .insert([{ name: newCatName.trim(), user_id: user?.id }])
+    if (error) {
+      toast({ title: 'Erro', description: 'Falha ao criar categoria', variant: 'destructive' })
+    } else {
+      setNewCatName('')
+      loadCategories()
+      toast({ title: 'Sucesso', description: 'Categoria adicionada.' })
+    }
+  }
+
+  const handleDeleteCategory = async (id: string) => {
+    const { error } = await supabase.from('product_categories').delete().eq('id', id)
+    if (error) {
+      toast({ title: 'Erro', description: 'Falha ao remover categoria', variant: 'destructive' })
+    } else {
+      loadCategories()
+      toast({ title: 'Sucesso', description: 'Categoria removida.' })
+    }
+  }
 
   const handleOpen = (prod?: any) => {
     if (prod) {
@@ -154,9 +188,14 @@ export default function Products() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-secondary">Produtos e Serviços</h1>
-        <Button onClick={() => handleOpen()}>
-          <Plus className="w-4 h-4 mr-2" /> Novo Item
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setCatOpen(true)}>
+            Categorias
+          </Button>
+          <Button onClick={() => handleOpen()}>
+            <Plus className="w-4 h-4 mr-2" /> Novo Item
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -260,10 +299,24 @@ export default function Products() {
               </div>
               <div className="grid gap-2">
                 <Label>Categoria</Label>
-                <Input
+                <Select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                />
+                  onValueChange={(val) => setFormData({ ...formData, category: val })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formData.category && !categories.find((c) => c.name === formData.category) && (
+                      <SelectItem value={formData.category}>{formData.category}</SelectItem>
+                    )}
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -355,6 +408,37 @@ export default function Products() {
           <DialogFooter>
             <Button onClick={handleStock}>Confirmar</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={catOpen} onOpenChange={setCatOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Gerenciar Categorias</DialogTitle>
+          </DialogHeader>
+          <div className="flex gap-2 py-4">
+            <Input
+              placeholder="Nova categoria..."
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+            />
+            <Button onClick={handleAddCategory}>Adicionar</Button>
+          </div>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {categories.map((c) => (
+              <div key={c.id} className="flex justify-between items-center bg-muted p-2 rounded-md">
+                <span>{c.name}</span>
+                <Button variant="ghost" size="icon" onClick={() => handleDeleteCategory(c.id)}>
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
+            {categories.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma categoria cadastrada.
+              </p>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
