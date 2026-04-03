@@ -257,6 +257,7 @@ export interface Product {
   supplier: string
   category: string
   currentStock: number
+  type?: 'Produto' | 'Serviço'
 }
 
 export interface EventSupply {
