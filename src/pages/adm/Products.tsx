@@ -56,22 +56,32 @@ export default function Products() {
   const [newCatName, setNewCatName] = useState('')
 
   const loadProducts = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false })
+    if (error) {
+      console.error('Erro ao carregar produtos:', error)
+      return
+    }
     if (data) setProducts(data)
   }
 
   const loadCategories = async () => {
-    const { data } = await supabase.from('product_categories').select('*').order('name')
+    const { data, error } = await supabase.from('product_categories').select('*').order('name')
+    if (error) {
+      console.error('Erro ao carregar categorias:', error)
+      return
+    }
     if (data) setCategories(data)
   }
 
   useEffect(() => {
-    loadProducts()
-    loadCategories()
-  }, [])
+    if (user) {
+      loadProducts()
+      loadCategories()
+    }
+  }, [user])
 
   const handleAddCategory = async () => {
     if (!newCatName.trim()) return

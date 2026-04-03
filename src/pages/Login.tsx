@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAppStore } from '@/stores/main'
+import { useAuth } from '@/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -24,9 +24,10 @@ const loginSchema = z.object({
 })
 
 export default function Login() {
-  const { login } = useAppStore()
+  const { signIn } = useAuth()
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -36,13 +37,24 @@ export default function Login() {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setError('')
+    setLoading(true)
     try {
-      login(values.email, values.password)
-      navigate('/')
+      const { error: signInError } = await signIn(values.email, values.password)
+      if (signInError) {
+        if (signInError.message === 'Invalid login credentials') {
+          setError('Email ou senha inválidos')
+        } else {
+          setError(signInError.message)
+        }
+      } else {
+        navigate('/')
+      }
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message || 'Erro ao conectar com servidor')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -98,9 +110,10 @@ export default function Login() {
               />
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                Entrar
+                {loading ? 'Entrando...' : 'Entrar'}
               </Button>
             </form>
           </Form>
