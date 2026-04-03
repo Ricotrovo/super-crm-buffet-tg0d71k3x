@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS last_paid_value NUMERIC(10,2) DEFAULT 0;

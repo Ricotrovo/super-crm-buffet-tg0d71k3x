@@ -47,6 +47,7 @@ export default function Products() {
     category: '',
     type: 'Produto',
     current_stock: 0,
+    last_paid_value: 0,
   })
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -115,10 +116,18 @@ export default function Products() {
         category: prod.category || '',
         type: prod.type || 'Produto',
         current_stock: prod.current_stock || 0,
+        last_paid_value: prod.last_paid_value || 0,
       })
     } else {
       setEditingId(null)
-      setFormData({ name: '', supplier: '', category: '', type: 'Produto', current_stock: 0 })
+      setFormData({
+        name: '',
+        supplier: '',
+        category: '',
+        type: 'Produto',
+        current_stock: 0,
+        last_paid_value: 0,
+      })
     }
     setIsOpen(true)
   }
@@ -229,6 +238,7 @@ export default function Products() {
                 <TableHead>Fornecedor</TableHead>
                 <TableHead>Categoria</TableHead>
                 <TableHead>Tipo</TableHead>
+                <TableHead className="text-right">Custo</TableHead>
                 <TableHead className="text-center">Estoque Atual</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -240,6 +250,9 @@ export default function Products() {
                   <TableCell>{p.supplier || '-'}</TableCell>
                   <TableCell>{p.category || '-'}</TableCell>
                   <TableCell>{p.type}</TableCell>
+                  <TableCell className="text-right">
+                    {p.last_paid_value ? `R$ ${Number(p.last_paid_value).toFixed(2)}` : 'R$ 0.00'}
+                  </TableCell>
                   <TableCell className="text-center font-bold">
                     {p.type === 'Serviço' ? '-' : p.current_stock}
                   </TableCell>
@@ -288,7 +301,7 @@ export default function Products() {
               ))}
               {products.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground h-24">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground h-24">
                     Nenhum item cadastrado.
                   </TableCell>
                 </TableRow>
@@ -357,20 +370,32 @@ export default function Products() {
                   </SelectContent>
                 </Select>
               </div>
-              {formData.type === 'Produto' && !editingId && (
-                <div className="grid gap-2">
-                  <Label>Estoque Inicial</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.current_stock}
-                    onChange={(e) =>
-                      setFormData({ ...formData, current_stock: Number(e.target.value) })
-                    }
-                  />
-                </div>
-              )}
+              <div className="grid gap-2">
+                <Label>Último Valor Pago (R$)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.last_paid_value || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, last_paid_value: Number(e.target.value) })
+                  }
+                />
+              </div>
             </div>
+            {formData.type === 'Produto' && !editingId && (
+              <div className="grid gap-2 mt-4">
+                <Label>Estoque Inicial</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={formData.current_stock || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, current_stock: Number(e.target.value) })
+                  }
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button onClick={handleSave}>Salvar</Button>
