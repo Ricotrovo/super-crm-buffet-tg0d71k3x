@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -28,6 +28,19 @@ import Outsourced from './pages/adm/Outsourced'
 import Kitchen from './pages/kitchen/Kitchen'
 import Checklist from './pages/operational/Checklist'
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth()
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+  if (!user) return <Navigate to="/login" replace />
+  return <>{children}</>
+}
+
 const App = () => (
   <AuthProvider>
     <AppProvider>
@@ -38,7 +51,13 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/assinatura/:contractId" element={<SignaturePage />} />
-            <Route element={<Layout />}>
+            <Route
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
               <Route path="/" element={<Index />} />
               <Route path="/leads" element={<Leads />} />
               <Route path="/agenda" element={<Agenda />} />
